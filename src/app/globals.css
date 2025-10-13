@@ -699,6 +699,7 @@
   --typography-english-desktop-captionMedium-font-family: var(--font-family-english-primary);
 }
 
+/* Dark mode with system preference */
 @media (prefers-color-scheme: dark) {
   :root {
     /* Dark Mode Background Colors */
@@ -715,6 +716,23 @@
     --border: #5f5f5f;
     --border-secondary: #777777;
   }
+}
+
+/* Dark mode with class-based theme switching (next-themes support) */
+.dark {
+  /* Dark Mode Background Colors */
+  --background: #000000;
+  --background-secondary: #1c1c1c;
+  --background-tertiary: #333333;
+  
+  /* Dark Mode Text Colors */
+  --foreground: #ffffff;
+  --foreground-secondary: #e4e4e4;
+  --foreground-tertiary: #c7c7c7;
+  
+  /* Dark Mode Border Colors */
+  --border: #5f5f5f;
+  --border-secondary: #777777;
 }
 
 body {
