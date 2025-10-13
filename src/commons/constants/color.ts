@@ -1,6 +1,20 @@
 /**
  * Color Tokens
  * 다크모드를 포함한 모든 색상을 토큰화하여 관리
+ * 
+ * @description
+ * - 모든 색상은 const assertion으로 타입 안정성 보장
+ * - CSS 변수와 1:1 매핑되어 Tailwind에서도 사용 가능
+ * - 다크모드는 lightMode/darkMode 객체로 분리 관리
+ * 
+ * @example
+ * // TypeScript에서 사용
+ * import { colors, blue } from '@/commons/constants/color';
+ * const primaryColor = blue['60']; // #3A5CF3
+ * 
+ * // CSS/Tailwind에서 사용
+ * <div className="bg-blue-60 text-gray-white" />
+ * <div style={{ backgroundColor: 'var(--blue-60)' }} />
  */
 
 // Blue 색상 팔레트
@@ -181,6 +195,148 @@ export type ColorValue = string;
 export type ColorPaletteType = {
   [K in string]: ColorValue | { [K2 in string]: ColorValue };
 };
+
+// 시맨틱 색상 레벨 타입
+export type SemanticLevel = 'light' | 'main' | 'dark';
+
+// 테마 타입
+export type Theme = 'light' | 'dark';
+
+/**
+ * 색상 접근 헬퍼 함수
+ */
+
+/**
+ * 시맨틱 색상을 가져오는 헬퍼 함수
+ * @param color - 색상 종류 (primary, secondary, success, error, warning)
+ * @param level - 색상 레벨 (light, main, dark)
+ * @returns 색상 값
+ * 
+ * @example
+ * getSemanticColor('primary', 'main') // '#497CFF'
+ * getSemanticColor('error', 'light') // '#F4677A'
+ */
+export const getSemanticColor = (
+  color: SemanticColor,
+  level: SemanticLevel = 'main'
+): ColorValue => {
+  return semantic[color][level];
+};
+
+/**
+ * 테마별 배경색상을 가져오는 헬퍼 함수
+ * @param theme - 테마 (light, dark)
+ * @param level - 색상 레벨 (primary, secondary, tertiary)
+ * @returns 색상 값
+ * 
+ * @example
+ * getThemeBackgroundColor('dark', 'primary') // '#000000'
+ * getThemeBackgroundColor('light', 'secondary') // '#F2F2F2'
+ */
+export const getThemeBackgroundColor = (
+  theme: Theme,
+  level: keyof typeof lightMode.background = 'primary'
+): ColorValue => {
+  const themeColors = theme === 'light' ? lightMode : darkMode;
+  return themeColors.background[level];
+};
+
+/**
+ * 테마별 텍스트색상을 가져오는 헬퍼 함수
+ * @param theme - 테마 (light, dark)
+ * @param level - 색상 레벨 (primary, secondary, tertiary)
+ * @returns 색상 값
+ * 
+ * @example
+ * getThemeTextColor('dark', 'primary') // '#FFFFFF'
+ * getThemeTextColor('light', 'secondary') // '#5F5F5F'
+ */
+export const getThemeTextColor = (
+  theme: Theme,
+  level: keyof typeof lightMode.text = 'primary'
+): ColorValue => {
+  const themeColors = theme === 'light' ? lightMode : darkMode;
+  return themeColors.text[level];
+};
+
+/**
+ * 테마별 보더색상을 가져오는 헬퍼 함수
+ * @param theme - 테마 (light, dark)
+ * @param level - 색상 레벨 (primary, secondary)
+ * @returns 색상 값
+ * 
+ * @example
+ * getThemeBorderColor('dark', 'primary') // '#5F5F5F'
+ * getThemeBorderColor('light', 'secondary') // '#E4E4E4'
+ */
+export const getThemeBorderColor = (
+  theme: Theme,
+  level: keyof typeof lightMode.border = 'primary'
+): ColorValue => {
+  const themeColors = theme === 'light' ? lightMode : darkMode;
+  return themeColors.border[level];
+};
+
+/**
+ * Blue 색상을 가져오는 헬퍼 함수
+ * @param shade - 색상 농도 (05-90)
+ * @returns 색상 값
+ * 
+ * @example
+ * getBlueColor('60') // '#3A5CF3'
+ */
+export const getBlueColor = (shade: BlueColor): ColorValue => blue[shade];
+
+/**
+ * Gray 색상을 가져오는 헬퍼 함수
+ * @param shade - 색상 농도 (white, 05-90, black)
+ * @returns 색상 값
+ * 
+ * @example
+ * getGrayColor('60') // '#777777'
+ * getGrayColor('white') // '#FFFFFF'
+ */
+export const getGrayColor = (shade: GrayColor): ColorValue => gray[shade];
+
+/**
+ * Red 색상을 가져오는 헬퍼 함수
+ * @param shade - 색상 농도 (05-60)
+ * @returns 색상 값
+ * 
+ * @example
+ * getRedColor('30') // '#F03851'
+ */
+export const getRedColor = (shade: RedColor): ColorValue => red[shade];
+
+/**
+ * Green 색상을 가져오는 헬퍼 함수
+ * @param shade - 색상 농도 (05-60)
+ * @returns 색상 값
+ * 
+ * @example
+ * getGreenColor('30') // '#12B75F'
+ */
+export const getGreenColor = (shade: GreenColor): ColorValue => green[shade];
+
+/**
+ * Yellow 색상을 가져오는 헬퍼 함수
+ * @param shade - 색상 농도 (05-60)
+ * @returns 색상 값
+ * 
+ * @example
+ * getYellowColor('30') // '#FFB300'
+ */
+export const getYellowColor = (shade: YellowColor): ColorValue => yellow[shade];
+
+/**
+ * Cool Gray 색상을 가져오는 헬퍼 함수
+ * @param shade - 색상 농도 (01, 05-60)
+ * @returns 색상 값
+ * 
+ * @example
+ * getCoolGrayColor('30') // '#D2D4DD'
+ */
+export const getCoolGrayColor = (shade: CoolGrayColor): ColorValue => coolGray[shade];
 
 // 기본 export
 export default colors;

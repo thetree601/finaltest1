@@ -101,7 +101,11 @@
   --warning-main: #ffb300;
   --warning-dark: #eba500;
   
-  /* Typography Variables */
+  /* Gradient Colors */
+  --gradient-primary: linear-gradient(135deg, #6da5fa 0%, #92eaf5 100%);
+  --gradient-skeleton: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 48.5%, rgba(255,255,255,0) 100%);
+  
+  /* Typography Foundation Variables */
   /* Font Families */
   --font-family-korean-primary: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
   --font-family-korean-secondary: 'Noto Sans KR', sans-serif;
@@ -163,128 +167,540 @@
   --letter-spacing-widest: 0.1em;
   
   /* Typography Styles - Korean Mobile */
-  --typography-korean-mobile-h1-font-size: var(--font-size-mobile-6xl);
-  --typography-korean-mobile-h1-font-weight: var(--font-weight-bold);
-  --typography-korean-mobile-h1-line-height: var(--line-height-tight);
-  --typography-korean-mobile-h1-letter-spacing: var(--letter-spacing-tight);
-  --typography-korean-mobile-h1-font-family: var(--font-family-korean-primary);
+  /* Web Headline */
+  --typography-korean-mobile-webHeadline01-font-size: 48px;
+  --typography-korean-mobile-webHeadline01-font-weight: 600;
+  --typography-korean-mobile-webHeadline01-line-height: 60px;
+  --typography-korean-mobile-webHeadline01-letter-spacing: 0em;
+  --typography-korean-mobile-webHeadline01-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-mobile-h2-font-size: var(--font-size-mobile-5xl);
-  --typography-korean-mobile-h2-font-weight: var(--font-weight-bold);
-  --typography-korean-mobile-h2-line-height: var(--line-height-tight);
-  --typography-korean-mobile-h2-letter-spacing: var(--letter-spacing-tight);
-  --typography-korean-mobile-h2-font-family: var(--font-family-korean-primary);
+  --typography-korean-mobile-webHeadline02-font-size: 36px;
+  --typography-korean-mobile-webHeadline02-font-weight: 600;
+  --typography-korean-mobile-webHeadline02-line-height: 48px;
+  --typography-korean-mobile-webHeadline02-letter-spacing: 0em;
+  --typography-korean-mobile-webHeadline02-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-mobile-h3-font-size: var(--font-size-mobile-4xl);
-  --typography-korean-mobile-h3-font-weight: var(--font-weight-semibold);
-  --typography-korean-mobile-h3-line-height: var(--line-height-snug);
-  --typography-korean-mobile-h3-letter-spacing: var(--letter-spacing-normal);
-  --typography-korean-mobile-h3-font-family: var(--font-family-korean-primary);
+  --typography-korean-mobile-webHeadline03-font-size: 28px;
+  --typography-korean-mobile-webHeadline03-font-weight: 600;
+  --typography-korean-mobile-webHeadline03-line-height: 36px;
+  --typography-korean-mobile-webHeadline03-letter-spacing: 0em;
+  --typography-korean-mobile-webHeadline03-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-mobile-body1-font-size: var(--font-size-mobile-base);
-  --typography-korean-mobile-body1-font-weight: var(--font-weight-normal);
-  --typography-korean-mobile-body1-line-height: var(--line-height-normal);
-  --typography-korean-mobile-body1-letter-spacing: var(--letter-spacing-normal);
-  --typography-korean-mobile-body1-font-family: var(--font-family-korean-primary);
+  /* Headline */
+  --typography-korean-mobile-headline01-font-size: 24px;
+  --typography-korean-mobile-headline01-font-weight: 700;
+  --typography-korean-mobile-headline01-line-height: 32px;
+  --typography-korean-mobile-headline01-letter-spacing: 0em;
+  --typography-korean-mobile-headline01-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-mobile-button-font-size: var(--font-size-mobile-base);
-  --typography-korean-mobile-button-font-weight: var(--font-weight-medium);
-  --typography-korean-mobile-button-line-height: var(--line-height-none);
-  --typography-korean-mobile-button-letter-spacing: var(--letter-spacing-wide);
-  --typography-korean-mobile-button-font-family: var(--font-family-korean-primary);
+  --typography-korean-mobile-headline02-font-size: 22px;
+  --typography-korean-mobile-headline02-font-weight: 800;
+  --typography-korean-mobile-headline02-line-height: 30px;
+  --typography-korean-mobile-headline02-letter-spacing: 0em;
+  --typography-korean-mobile-headline02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-headline03-font-size: 20px;
+  --typography-korean-mobile-headline03-font-weight: 700;
+  --typography-korean-mobile-headline03-line-height: 28px;
+  --typography-korean-mobile-headline03-letter-spacing: 0em;
+  --typography-korean-mobile-headline03-font-family: var(--font-family-korean-primary);
+  
+  /* Title */
+  --typography-korean-mobile-title01-font-size: 18px;
+  --typography-korean-mobile-title01-font-weight: 700;
+  --typography-korean-mobile-title01-line-height: 24px;
+  --typography-korean-mobile-title01-letter-spacing: 0em;
+  --typography-korean-mobile-title01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-title02-font-size: 16px;
+  --typography-korean-mobile-title02-font-weight: 700;
+  --typography-korean-mobile-title02-line-height: 22px;
+  --typography-korean-mobile-title02-letter-spacing: 0em;
+  --typography-korean-mobile-title02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-title03-font-size: 14px;
+  --typography-korean-mobile-title03-font-weight: 700;
+  --typography-korean-mobile-title03-line-height: 20px;
+  --typography-korean-mobile-title03-letter-spacing: 0em;
+  --typography-korean-mobile-title03-font-family: var(--font-family-korean-primary);
+  
+  /* Subtitle */
+  --typography-korean-mobile-subtitle01-font-size: 14px;
+  --typography-korean-mobile-subtitle01-font-weight: 600;
+  --typography-korean-mobile-subtitle01-line-height: 22px;
+  --typography-korean-mobile-subtitle01-letter-spacing: 0em;
+  --typography-korean-mobile-subtitle01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-subtitle02-font-size: 12px;
+  --typography-korean-mobile-subtitle02-font-weight: 600;
+  --typography-korean-mobile-subtitle02-line-height: 18px;
+  --typography-korean-mobile-subtitle02-letter-spacing: 0em;
+  --typography-korean-mobile-subtitle02-font-family: var(--font-family-korean-primary);
+  
+  /* Body */
+  --typography-korean-mobile-body01-font-size: 16px;
+  --typography-korean-mobile-body01-font-weight: 500;
+  --typography-korean-mobile-body01-line-height: 24px;
+  --typography-korean-mobile-body01-letter-spacing: 0em;
+  --typography-korean-mobile-body01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-body02-font-size: 14px;
+  --typography-korean-mobile-body02-font-weight: 500;
+  --typography-korean-mobile-body02-line-height: 22px;
+  --typography-korean-mobile-body02-letter-spacing: 0em;
+  --typography-korean-mobile-body02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-body03-font-size: 12px;
+  --typography-korean-mobile-body03-font-weight: 500;
+  --typography-korean-mobile-body03-line-height: 18px;
+  --typography-korean-mobile-body03-letter-spacing: 0em;
+  --typography-korean-mobile-body03-font-family: var(--font-family-korean-primary);
+  
+  /* Body Regular */
+  --typography-korean-mobile-bodyRegular01-font-size: 16px;
+  --typography-korean-mobile-bodyRegular01-font-weight: 400;
+  --typography-korean-mobile-bodyRegular01-line-height: 22px;
+  --typography-korean-mobile-bodyRegular01-letter-spacing: 0em;
+  --typography-korean-mobile-bodyRegular01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-bodyRegular02-font-size: 14px;
+  --typography-korean-mobile-bodyRegular02-font-weight: 400;
+  --typography-korean-mobile-bodyRegular02-line-height: 20px;
+  --typography-korean-mobile-bodyRegular02-letter-spacing: 0em;
+  --typography-korean-mobile-bodyRegular02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-bodyRegular03-font-size: 12px;
+  --typography-korean-mobile-bodyRegular03-font-weight: 400;
+  --typography-korean-mobile-bodyRegular03-line-height: 16px;
+  --typography-korean-mobile-bodyRegular03-letter-spacing: 0em;
+  --typography-korean-mobile-bodyRegular03-font-family: var(--font-family-korean-primary);
+  
+  /* Caption */
+  --typography-korean-mobile-caption01-font-size: 12px;
+  --typography-korean-mobile-caption01-font-weight: 600;
+  --typography-korean-mobile-caption01-line-height: 14px;
+  --typography-korean-mobile-caption01-letter-spacing: 0em;
+  --typography-korean-mobile-caption01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-caption02-font-size: 10px;
+  --typography-korean-mobile-caption02-font-weight: 600;
+  --typography-korean-mobile-caption02-line-height: 12px;
+  --typography-korean-mobile-caption02-letter-spacing: 0em;
+  --typography-korean-mobile-caption02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-caption03-font-size: 8px;
+  --typography-korean-mobile-caption03-font-weight: 600;
+  --typography-korean-mobile-caption03-line-height: 10px;
+  --typography-korean-mobile-caption03-letter-spacing: 0em;
+  --typography-korean-mobile-caption03-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-mobile-captionMedium-font-size: 10px;
+  --typography-korean-mobile-captionMedium-font-weight: 500;
+  --typography-korean-mobile-captionMedium-line-height: 12px;
+  --typography-korean-mobile-captionMedium-letter-spacing: 0em;
+  --typography-korean-mobile-captionMedium-font-family: var(--font-family-korean-primary);
   
   /* Typography Styles - Korean Desktop */
-  --typography-korean-desktop-h1-font-size: var(--font-size-desktop-6xl);
-  --typography-korean-desktop-h1-font-weight: var(--font-weight-bold);
-  --typography-korean-desktop-h1-line-height: var(--line-height-tight);
-  --typography-korean-desktop-h1-letter-spacing: var(--letter-spacing-tight);
-  --typography-korean-desktop-h1-font-family: var(--font-family-korean-primary);
+  /* Web Headline */
+  --typography-korean-desktop-webHeadline01-font-size: 48px;
+  --typography-korean-desktop-webHeadline01-font-weight: 600;
+  --typography-korean-desktop-webHeadline01-line-height: 60px;
+  --typography-korean-desktop-webHeadline01-letter-spacing: 0em;
+  --typography-korean-desktop-webHeadline01-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-desktop-h2-font-size: var(--font-size-desktop-5xl);
-  --typography-korean-desktop-h2-font-weight: var(--font-weight-bold);
-  --typography-korean-desktop-h2-line-height: var(--line-height-tight);
-  --typography-korean-desktop-h2-letter-spacing: var(--letter-spacing-tight);
-  --typography-korean-desktop-h2-font-family: var(--font-family-korean-primary);
+  --typography-korean-desktop-webHeadline02-font-size: 36px;
+  --typography-korean-desktop-webHeadline02-font-weight: 600;
+  --typography-korean-desktop-webHeadline02-line-height: 48px;
+  --typography-korean-desktop-webHeadline02-letter-spacing: 0em;
+  --typography-korean-desktop-webHeadline02-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-desktop-h3-font-size: var(--font-size-desktop-4xl);
-  --typography-korean-desktop-h3-font-weight: var(--font-weight-semibold);
-  --typography-korean-desktop-h3-line-height: var(--line-height-snug);
-  --typography-korean-desktop-h3-letter-spacing: var(--letter-spacing-normal);
-  --typography-korean-desktop-h3-font-family: var(--font-family-korean-primary);
+  --typography-korean-desktop-webHeadline03-font-size: 28px;
+  --typography-korean-desktop-webHeadline03-font-weight: 600;
+  --typography-korean-desktop-webHeadline03-line-height: 36px;
+  --typography-korean-desktop-webHeadline03-letter-spacing: 0em;
+  --typography-korean-desktop-webHeadline03-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-desktop-body1-font-size: var(--font-size-desktop-base);
-  --typography-korean-desktop-body1-font-weight: var(--font-weight-normal);
-  --typography-korean-desktop-body1-line-height: var(--line-height-normal);
-  --typography-korean-desktop-body1-letter-spacing: var(--letter-spacing-normal);
-  --typography-korean-desktop-body1-font-family: var(--font-family-korean-primary);
+  /* Headline */
+  --typography-korean-desktop-headline01-font-size: 24px;
+  --typography-korean-desktop-headline01-font-weight: 700;
+  --typography-korean-desktop-headline01-line-height: 32px;
+  --typography-korean-desktop-headline01-letter-spacing: 0em;
+  --typography-korean-desktop-headline01-font-family: var(--font-family-korean-primary);
   
-  --typography-korean-desktop-button-font-size: var(--font-size-desktop-base);
-  --typography-korean-desktop-button-font-weight: var(--font-weight-medium);
-  --typography-korean-desktop-button-line-height: var(--line-height-none);
-  --typography-korean-desktop-button-letter-spacing: var(--letter-spacing-wide);
-  --typography-korean-desktop-button-font-family: var(--font-family-korean-primary);
+  --typography-korean-desktop-headline02-font-size: 22px;
+  --typography-korean-desktop-headline02-font-weight: 800;
+  --typography-korean-desktop-headline02-line-height: 30px;
+  --typography-korean-desktop-headline02-letter-spacing: 0em;
+  --typography-korean-desktop-headline02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-headline03-font-size: 20px;
+  --typography-korean-desktop-headline03-font-weight: 700;
+  --typography-korean-desktop-headline03-line-height: 28px;
+  --typography-korean-desktop-headline03-letter-spacing: 0em;
+  --typography-korean-desktop-headline03-font-family: var(--font-family-korean-primary);
+  
+  /* Title */
+  --typography-korean-desktop-title01-font-size: 18px;
+  --typography-korean-desktop-title01-font-weight: 700;
+  --typography-korean-desktop-title01-line-height: 24px;
+  --typography-korean-desktop-title01-letter-spacing: 0em;
+  --typography-korean-desktop-title01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-title02-font-size: 16px;
+  --typography-korean-desktop-title02-font-weight: 700;
+  --typography-korean-desktop-title02-line-height: 22px;
+  --typography-korean-desktop-title02-letter-spacing: 0em;
+  --typography-korean-desktop-title02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-title03-font-size: 14px;
+  --typography-korean-desktop-title03-font-weight: 700;
+  --typography-korean-desktop-title03-line-height: 20px;
+  --typography-korean-desktop-title03-letter-spacing: 0em;
+  --typography-korean-desktop-title03-font-family: var(--font-family-korean-primary);
+  
+  /* Subtitle */
+  --typography-korean-desktop-subtitle01-font-size: 14px;
+  --typography-korean-desktop-subtitle01-font-weight: 600;
+  --typography-korean-desktop-subtitle01-line-height: 22px;
+  --typography-korean-desktop-subtitle01-letter-spacing: 0em;
+  --typography-korean-desktop-subtitle01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-subtitle02-font-size: 12px;
+  --typography-korean-desktop-subtitle02-font-weight: 600;
+  --typography-korean-desktop-subtitle02-line-height: 18px;
+  --typography-korean-desktop-subtitle02-letter-spacing: 0em;
+  --typography-korean-desktop-subtitle02-font-family: var(--font-family-korean-primary);
+  
+  /* Body */
+  --typography-korean-desktop-body01-font-size: 16px;
+  --typography-korean-desktop-body01-font-weight: 500;
+  --typography-korean-desktop-body01-line-height: 24px;
+  --typography-korean-desktop-body01-letter-spacing: 0em;
+  --typography-korean-desktop-body01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-body02-font-size: 14px;
+  --typography-korean-desktop-body02-font-weight: 500;
+  --typography-korean-desktop-body02-line-height: 22px;
+  --typography-korean-desktop-body02-letter-spacing: 0em;
+  --typography-korean-desktop-body02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-body03-font-size: 12px;
+  --typography-korean-desktop-body03-font-weight: 500;
+  --typography-korean-desktop-body03-line-height: 18px;
+  --typography-korean-desktop-body03-letter-spacing: 0em;
+  --typography-korean-desktop-body03-font-family: var(--font-family-korean-primary);
+  
+  /* Body Regular */
+  --typography-korean-desktop-bodyRegular01-font-size: 16px;
+  --typography-korean-desktop-bodyRegular01-font-weight: 400;
+  --typography-korean-desktop-bodyRegular01-line-height: 22px;
+  --typography-korean-desktop-bodyRegular01-letter-spacing: 0em;
+  --typography-korean-desktop-bodyRegular01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-bodyRegular02-font-size: 14px;
+  --typography-korean-desktop-bodyRegular02-font-weight: 400;
+  --typography-korean-desktop-bodyRegular02-line-height: 20px;
+  --typography-korean-desktop-bodyRegular02-letter-spacing: 0em;
+  --typography-korean-desktop-bodyRegular02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-bodyRegular03-font-size: 12px;
+  --typography-korean-desktop-bodyRegular03-font-weight: 400;
+  --typography-korean-desktop-bodyRegular03-line-height: 16px;
+  --typography-korean-desktop-bodyRegular03-letter-spacing: 0em;
+  --typography-korean-desktop-bodyRegular03-font-family: var(--font-family-korean-primary);
+  
+  /* Caption */
+  --typography-korean-desktop-caption01-font-size: 12px;
+  --typography-korean-desktop-caption01-font-weight: 600;
+  --typography-korean-desktop-caption01-line-height: 14px;
+  --typography-korean-desktop-caption01-letter-spacing: 0em;
+  --typography-korean-desktop-caption01-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-caption02-font-size: 10px;
+  --typography-korean-desktop-caption02-font-weight: 600;
+  --typography-korean-desktop-caption02-line-height: 12px;
+  --typography-korean-desktop-caption02-letter-spacing: 0em;
+  --typography-korean-desktop-caption02-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-caption03-font-size: 8px;
+  --typography-korean-desktop-caption03-font-weight: 600;
+  --typography-korean-desktop-caption03-line-height: 10px;
+  --typography-korean-desktop-caption03-letter-spacing: 0em;
+  --typography-korean-desktop-caption03-font-family: var(--font-family-korean-primary);
+  
+  --typography-korean-desktop-captionMedium-font-size: 10px;
+  --typography-korean-desktop-captionMedium-font-weight: 500;
+  --typography-korean-desktop-captionMedium-line-height: 12px;
+  --typography-korean-desktop-captionMedium-letter-spacing: 0em;
+  --typography-korean-desktop-captionMedium-font-family: var(--font-family-korean-primary);
   
   /* Typography Styles - English Mobile */
-  --typography-english-mobile-h1-font-size: var(--font-size-mobile-6xl);
-  --typography-english-mobile-h1-font-weight: var(--font-weight-bold);
-  --typography-english-mobile-h1-line-height: var(--line-height-tight);
-  --typography-english-mobile-h1-letter-spacing: var(--letter-spacing-tighter);
-  --typography-english-mobile-h1-font-family: var(--font-family-english-primary);
+  /* Web Headline */
+  --typography-english-mobile-webHeadline01-font-size: 48px;
+  --typography-english-mobile-webHeadline01-font-weight: 600;
+  --typography-english-mobile-webHeadline01-line-height: 60px;
+  --typography-english-mobile-webHeadline01-letter-spacing: -0.05em;
+  --typography-english-mobile-webHeadline01-font-family: var(--font-family-english-primary);
   
-  --typography-english-mobile-h2-font-size: var(--font-size-mobile-5xl);
-  --typography-english-mobile-h2-font-weight: var(--font-weight-bold);
-  --typography-english-mobile-h2-line-height: var(--line-height-tight);
-  --typography-english-mobile-h2-letter-spacing: var(--letter-spacing-tighter);
-  --typography-english-mobile-h2-font-family: var(--font-family-english-primary);
+  --typography-english-mobile-webHeadline02-font-size: 36px;
+  --typography-english-mobile-webHeadline02-font-weight: 600;
+  --typography-english-mobile-webHeadline02-line-height: 48px;
+  --typography-english-mobile-webHeadline02-letter-spacing: -0.05em;
+  --typography-english-mobile-webHeadline02-font-family: var(--font-family-english-primary);
   
-  --typography-english-mobile-h3-font-size: var(--font-size-mobile-4xl);
-  --typography-english-mobile-h3-font-weight: var(--font-weight-semibold);
-  --typography-english-mobile-h3-line-height: var(--line-height-snug);
-  --typography-english-mobile-h3-letter-spacing: var(--letter-spacing-tight);
-  --typography-english-mobile-h3-font-family: var(--font-family-english-primary);
+  --typography-english-mobile-webHeadline03-font-size: 28px;
+  --typography-english-mobile-webHeadline03-font-weight: 600;
+  --typography-english-mobile-webHeadline03-line-height: 36px;
+  --typography-english-mobile-webHeadline03-letter-spacing: -0.025em;
+  --typography-english-mobile-webHeadline03-font-family: var(--font-family-english-primary);
   
-  --typography-english-mobile-body1-font-size: var(--font-size-mobile-base);
-  --typography-english-mobile-body1-font-weight: var(--font-weight-normal);
-  --typography-english-mobile-body1-line-height: var(--line-height-relaxed);
-  --typography-english-mobile-body1-letter-spacing: var(--letter-spacing-normal);
-  --typography-english-mobile-body1-font-family: var(--font-family-english-primary);
+  /* Headline */
+  --typography-english-mobile-headline01-font-size: 24px;
+  --typography-english-mobile-headline01-font-weight: 700;
+  --typography-english-mobile-headline01-line-height: 32px;
+  --typography-english-mobile-headline01-letter-spacing: -0.025em;
+  --typography-english-mobile-headline01-font-family: var(--font-family-english-primary);
   
-  --typography-english-mobile-button-font-size: var(--font-size-mobile-base);
-  --typography-english-mobile-button-font-weight: var(--font-weight-medium);
-  --typography-english-mobile-button-line-height: var(--line-height-none);
-  --typography-english-mobile-button-letter-spacing: var(--letter-spacing-wide);
-  --typography-english-mobile-button-font-family: var(--font-family-english-primary);
+  --typography-english-mobile-headline02-font-size: 22px;
+  --typography-english-mobile-headline02-font-weight: 800;
+  --typography-english-mobile-headline02-line-height: 30px;
+  --typography-english-mobile-headline02-letter-spacing: -0.025em;
+  --typography-english-mobile-headline02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-headline03-font-size: 20px;
+  --typography-english-mobile-headline03-font-weight: 700;
+  --typography-english-mobile-headline03-line-height: 28px;
+  --typography-english-mobile-headline03-letter-spacing: 0em;
+  --typography-english-mobile-headline03-font-family: var(--font-family-english-primary);
+  
+  /* Title */
+  --typography-english-mobile-title01-font-size: 18px;
+  --typography-english-mobile-title01-font-weight: 700;
+  --typography-english-mobile-title01-line-height: 24px;
+  --typography-english-mobile-title01-letter-spacing: 0em;
+  --typography-english-mobile-title01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-title02-font-size: 16px;
+  --typography-english-mobile-title02-font-weight: 700;
+  --typography-english-mobile-title02-line-height: 22px;
+  --typography-english-mobile-title02-letter-spacing: 0em;
+  --typography-english-mobile-title02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-title03-font-size: 14px;
+  --typography-english-mobile-title03-font-weight: 700;
+  --typography-english-mobile-title03-line-height: 20px;
+  --typography-english-mobile-title03-letter-spacing: 0em;
+  --typography-english-mobile-title03-font-family: var(--font-family-english-primary);
+  
+  /* Subtitle */
+  --typography-english-mobile-subtitle01-font-size: 14px;
+  --typography-english-mobile-subtitle01-font-weight: 600;
+  --typography-english-mobile-subtitle01-line-height: 22px;
+  --typography-english-mobile-subtitle01-letter-spacing: 0em;
+  --typography-english-mobile-subtitle01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-subtitle02-font-size: 12px;
+  --typography-english-mobile-subtitle02-font-weight: 600;
+  --typography-english-mobile-subtitle02-line-height: 18px;
+  --typography-english-mobile-subtitle02-letter-spacing: 0em;
+  --typography-english-mobile-subtitle02-font-family: var(--font-family-english-primary);
+  
+  /* Body */
+  --typography-english-mobile-body01-font-size: 16px;
+  --typography-english-mobile-body01-font-weight: 500;
+  --typography-english-mobile-body01-line-height: 26px;
+  --typography-english-mobile-body01-letter-spacing: 0em;
+  --typography-english-mobile-body01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-body02-font-size: 14px;
+  --typography-english-mobile-body02-font-weight: 500;
+  --typography-english-mobile-body02-line-height: 24px;
+  --typography-english-mobile-body02-letter-spacing: 0em;
+  --typography-english-mobile-body02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-body03-font-size: 12px;
+  --typography-english-mobile-body03-font-weight: 500;
+  --typography-english-mobile-body03-line-height: 20px;
+  --typography-english-mobile-body03-letter-spacing: 0em;
+  --typography-english-mobile-body03-font-family: var(--font-family-english-primary);
+  
+  /* Body Regular */
+  --typography-english-mobile-bodyRegular01-font-size: 16px;
+  --typography-english-mobile-bodyRegular01-font-weight: 400;
+  --typography-english-mobile-bodyRegular01-line-height: 24px;
+  --typography-english-mobile-bodyRegular01-letter-spacing: 0em;
+  --typography-english-mobile-bodyRegular01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-bodyRegular02-font-size: 14px;
+  --typography-english-mobile-bodyRegular02-font-weight: 400;
+  --typography-english-mobile-bodyRegular02-line-height: 22px;
+  --typography-english-mobile-bodyRegular02-letter-spacing: 0em;
+  --typography-english-mobile-bodyRegular02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-bodyRegular03-font-size: 12px;
+  --typography-english-mobile-bodyRegular03-font-weight: 400;
+  --typography-english-mobile-bodyRegular03-line-height: 18px;
+  --typography-english-mobile-bodyRegular03-letter-spacing: 0em;
+  --typography-english-mobile-bodyRegular03-font-family: var(--font-family-english-primary);
+  
+  /* Caption */
+  --typography-english-mobile-caption01-font-size: 12px;
+  --typography-english-mobile-caption01-font-weight: 600;
+  --typography-english-mobile-caption01-line-height: 16px;
+  --typography-english-mobile-caption01-letter-spacing: 0em;
+  --typography-english-mobile-caption01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-caption02-font-size: 10px;
+  --typography-english-mobile-caption02-font-weight: 600;
+  --typography-english-mobile-caption02-line-height: 14px;
+  --typography-english-mobile-caption02-letter-spacing: 0em;
+  --typography-english-mobile-caption02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-caption03-font-size: 8px;
+  --typography-english-mobile-caption03-font-weight: 600;
+  --typography-english-mobile-caption03-line-height: 12px;
+  --typography-english-mobile-caption03-letter-spacing: 0em;
+  --typography-english-mobile-caption03-font-family: var(--font-family-english-primary);
+  
+  --typography-english-mobile-captionMedium-font-size: 10px;
+  --typography-english-mobile-captionMedium-font-weight: 500;
+  --typography-english-mobile-captionMedium-line-height: 14px;
+  --typography-english-mobile-captionMedium-letter-spacing: 0em;
+  --typography-english-mobile-captionMedium-font-family: var(--font-family-english-primary);
   
   /* Typography Styles - English Desktop */
-  --typography-english-desktop-h1-font-size: var(--font-size-desktop-6xl);
-  --typography-english-desktop-h1-font-weight: var(--font-weight-bold);
-  --typography-english-desktop-h1-line-height: var(--line-height-tight);
-  --typography-english-desktop-h1-letter-spacing: var(--letter-spacing-tighter);
-  --typography-english-desktop-h1-font-family: var(--font-family-english-primary);
+  /* Web Headline */
+  --typography-english-desktop-webHeadline01-font-size: 48px;
+  --typography-english-desktop-webHeadline01-font-weight: 600;
+  --typography-english-desktop-webHeadline01-line-height: 60px;
+  --typography-english-desktop-webHeadline01-letter-spacing: -0.05em;
+  --typography-english-desktop-webHeadline01-font-family: var(--font-family-english-primary);
   
-  --typography-english-desktop-h2-font-size: var(--font-size-desktop-5xl);
-  --typography-english-desktop-h2-font-weight: var(--font-weight-bold);
-  --typography-english-desktop-h2-line-height: var(--line-height-tight);
-  --typography-english-desktop-h2-letter-spacing: var(--letter-spacing-tighter);
-  --typography-english-desktop-h2-font-family: var(--font-family-english-primary);
+  --typography-english-desktop-webHeadline02-font-size: 36px;
+  --typography-english-desktop-webHeadline02-font-weight: 600;
+  --typography-english-desktop-webHeadline02-line-height: 48px;
+  --typography-english-desktop-webHeadline02-letter-spacing: -0.05em;
+  --typography-english-desktop-webHeadline02-font-family: var(--font-family-english-primary);
   
-  --typography-english-desktop-h3-font-size: var(--font-size-desktop-4xl);
-  --typography-english-desktop-h3-font-weight: var(--font-weight-semibold);
-  --typography-english-desktop-h3-line-height: var(--line-height-snug);
-  --typography-english-desktop-h3-letter-spacing: var(--letter-spacing-tight);
-  --typography-english-desktop-h3-font-family: var(--font-family-english-primary);
+  --typography-english-desktop-webHeadline03-font-size: 28px;
+  --typography-english-desktop-webHeadline03-font-weight: 600;
+  --typography-english-desktop-webHeadline03-line-height: 36px;
+  --typography-english-desktop-webHeadline03-letter-spacing: -0.025em;
+  --typography-english-desktop-webHeadline03-font-family: var(--font-family-english-primary);
   
-  --typography-english-desktop-body1-font-size: var(--font-size-desktop-base);
-  --typography-english-desktop-body1-font-weight: var(--font-weight-normal);
-  --typography-english-desktop-body1-line-height: var(--line-height-relaxed);
-  --typography-english-desktop-body1-letter-spacing: var(--letter-spacing-normal);
-  --typography-english-desktop-body1-font-family: var(--font-family-english-primary);
+  /* Headline */
+  --typography-english-desktop-headline01-font-size: 24px;
+  --typography-english-desktop-headline01-font-weight: 700;
+  --typography-english-desktop-headline01-line-height: 32px;
+  --typography-english-desktop-headline01-letter-spacing: -0.025em;
+  --typography-english-desktop-headline01-font-family: var(--font-family-english-primary);
   
-  --typography-english-desktop-button-font-size: var(--font-size-desktop-base);
-  --typography-english-desktop-button-font-weight: var(--font-weight-medium);
-  --typography-english-desktop-button-line-height: var(--line-height-none);
-  --typography-english-desktop-button-letter-spacing: var(--letter-spacing-wide);
-  --typography-english-desktop-button-font-family: var(--font-family-english-primary);
+  --typography-english-desktop-headline02-font-size: 22px;
+  --typography-english-desktop-headline02-font-weight: 800;
+  --typography-english-desktop-headline02-line-height: 30px;
+  --typography-english-desktop-headline02-letter-spacing: -0.025em;
+  --typography-english-desktop-headline02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-headline03-font-size: 20px;
+  --typography-english-desktop-headline03-font-weight: 700;
+  --typography-english-desktop-headline03-line-height: 28px;
+  --typography-english-desktop-headline03-letter-spacing: 0em;
+  --typography-english-desktop-headline03-font-family: var(--font-family-english-primary);
+  
+  /* Title */
+  --typography-english-desktop-title01-font-size: 18px;
+  --typography-english-desktop-title01-font-weight: 700;
+  --typography-english-desktop-title01-line-height: 24px;
+  --typography-english-desktop-title01-letter-spacing: 0em;
+  --typography-english-desktop-title01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-title02-font-size: 16px;
+  --typography-english-desktop-title02-font-weight: 700;
+  --typography-english-desktop-title02-line-height: 22px;
+  --typography-english-desktop-title02-letter-spacing: 0em;
+  --typography-english-desktop-title02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-title03-font-size: 14px;
+  --typography-english-desktop-title03-font-weight: 700;
+  --typography-english-desktop-title03-line-height: 20px;
+  --typography-english-desktop-title03-letter-spacing: 0em;
+  --typography-english-desktop-title03-font-family: var(--font-family-english-primary);
+  
+  /* Subtitle */
+  --typography-english-desktop-subtitle01-font-size: 14px;
+  --typography-english-desktop-subtitle01-font-weight: 600;
+  --typography-english-desktop-subtitle01-line-height: 22px;
+  --typography-english-desktop-subtitle01-letter-spacing: 0em;
+  --typography-english-desktop-subtitle01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-subtitle02-font-size: 12px;
+  --typography-english-desktop-subtitle02-font-weight: 600;
+  --typography-english-desktop-subtitle02-line-height: 18px;
+  --typography-english-desktop-subtitle02-letter-spacing: 0em;
+  --typography-english-desktop-subtitle02-font-family: var(--font-family-english-primary);
+  
+  /* Body */
+  --typography-english-desktop-body01-font-size: 16px;
+  --typography-english-desktop-body01-font-weight: 500;
+  --typography-english-desktop-body01-line-height: 26px;
+  --typography-english-desktop-body01-letter-spacing: 0em;
+  --typography-english-desktop-body01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-body02-font-size: 14px;
+  --typography-english-desktop-body02-font-weight: 500;
+  --typography-english-desktop-body02-line-height: 24px;
+  --typography-english-desktop-body02-letter-spacing: 0em;
+  --typography-english-desktop-body02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-body03-font-size: 12px;
+  --typography-english-desktop-body03-font-weight: 500;
+  --typography-english-desktop-body03-line-height: 20px;
+  --typography-english-desktop-body03-letter-spacing: 0em;
+  --typography-english-desktop-body03-font-family: var(--font-family-english-primary);
+  
+  /* Body Regular */
+  --typography-english-desktop-bodyRegular01-font-size: 16px;
+  --typography-english-desktop-bodyRegular01-font-weight: 400;
+  --typography-english-desktop-bodyRegular01-line-height: 24px;
+  --typography-english-desktop-bodyRegular01-letter-spacing: 0em;
+  --typography-english-desktop-bodyRegular01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-bodyRegular02-font-size: 14px;
+  --typography-english-desktop-bodyRegular02-font-weight: 400;
+  --typography-english-desktop-bodyRegular02-line-height: 22px;
+  --typography-english-desktop-bodyRegular02-letter-spacing: 0em;
+  --typography-english-desktop-bodyRegular02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-bodyRegular03-font-size: 12px;
+  --typography-english-desktop-bodyRegular03-font-weight: 400;
+  --typography-english-desktop-bodyRegular03-line-height: 18px;
+  --typography-english-desktop-bodyRegular03-letter-spacing: 0em;
+  --typography-english-desktop-bodyRegular03-font-family: var(--font-family-english-primary);
+  
+  /* Caption */
+  --typography-english-desktop-caption01-font-size: 12px;
+  --typography-english-desktop-caption01-font-weight: 600;
+  --typography-english-desktop-caption01-line-height: 16px;
+  --typography-english-desktop-caption01-letter-spacing: 0em;
+  --typography-english-desktop-caption01-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-caption02-font-size: 10px;
+  --typography-english-desktop-caption02-font-weight: 600;
+  --typography-english-desktop-caption02-line-height: 14px;
+  --typography-english-desktop-caption02-letter-spacing: 0em;
+  --typography-english-desktop-caption02-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-caption03-font-size: 8px;
+  --typography-english-desktop-caption03-font-weight: 600;
+  --typography-english-desktop-caption03-line-height: 12px;
+  --typography-english-desktop-caption03-letter-spacing: 0em;
+  --typography-english-desktop-caption03-font-family: var(--font-family-english-primary);
+  
+  --typography-english-desktop-captionMedium-font-size: 10px;
+  --typography-english-desktop-captionMedium-font-weight: 500;
+  --typography-english-desktop-captionMedium-line-height: 14px;
+  --typography-english-desktop-captionMedium-letter-spacing: 0em;
+  --typography-english-desktop-captionMedium-font-family: var(--font-family-english-primary);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -316,183 +732,343 @@ body {
     text-wrap: balance;
   }
   
-  /* Typography Utility Classes */
-  /* Korean Typography */
-  .typography-korean-mobile-h1 {
-    font-size: var(--typography-korean-mobile-h1-font-size);
-    font-weight: var(--typography-korean-mobile-h1-font-weight);
-    line-height: var(--typography-korean-mobile-h1-line-height);
-    letter-spacing: var(--typography-korean-mobile-h1-letter-spacing);
-    font-family: var(--typography-korean-mobile-h1-font-family);
+  /* Typography Utility Classes - Korean Mobile */
+  .typography-korean-mobile-webHeadline01 {
+    font-size: var(--typography-korean-mobile-webHeadline01-font-size);
+    font-weight: var(--typography-korean-mobile-webHeadline01-font-weight);
+    line-height: var(--typography-korean-mobile-webHeadline01-line-height);
+    letter-spacing: var(--typography-korean-mobile-webHeadline01-letter-spacing);
+    font-family: var(--typography-korean-mobile-webHeadline01-font-family);
   }
   
-  .typography-korean-mobile-h2 {
-    font-size: var(--typography-korean-mobile-h2-font-size);
-    font-weight: var(--typography-korean-mobile-h2-font-weight);
-    line-height: var(--typography-korean-mobile-h2-line-height);
-    letter-spacing: var(--typography-korean-mobile-h2-letter-spacing);
-    font-family: var(--typography-korean-mobile-h2-font-family);
+  .typography-korean-mobile-webHeadline02 {
+    font-size: var(--typography-korean-mobile-webHeadline02-font-size);
+    font-weight: var(--typography-korean-mobile-webHeadline02-font-weight);
+    line-height: var(--typography-korean-mobile-webHeadline02-line-height);
+    letter-spacing: var(--typography-korean-mobile-webHeadline02-letter-spacing);
+    font-family: var(--typography-korean-mobile-webHeadline02-font-family);
   }
   
-  .typography-korean-mobile-h3 {
-    font-size: var(--typography-korean-mobile-h3-font-size);
-    font-weight: var(--typography-korean-mobile-h3-font-weight);
-    line-height: var(--typography-korean-mobile-h3-line-height);
-    letter-spacing: var(--typography-korean-mobile-h3-letter-spacing);
-    font-family: var(--typography-korean-mobile-h3-font-family);
+  .typography-korean-mobile-webHeadline03 {
+    font-size: var(--typography-korean-mobile-webHeadline03-font-size);
+    font-weight: var(--typography-korean-mobile-webHeadline03-font-weight);
+    line-height: var(--typography-korean-mobile-webHeadline03-line-height);
+    letter-spacing: var(--typography-korean-mobile-webHeadline03-letter-spacing);
+    font-family: var(--typography-korean-mobile-webHeadline03-font-family);
   }
   
-  .typography-korean-mobile-body1 {
-    font-size: var(--typography-korean-mobile-body1-font-size);
-    font-weight: var(--typography-korean-mobile-body1-font-weight);
-    line-height: var(--typography-korean-mobile-body1-line-height);
-    letter-spacing: var(--typography-korean-mobile-body1-letter-spacing);
-    font-family: var(--typography-korean-mobile-body1-font-family);
+  .typography-korean-mobile-headline01 {
+    font-size: var(--typography-korean-mobile-headline01-font-size);
+    font-weight: var(--typography-korean-mobile-headline01-font-weight);
+    line-height: var(--typography-korean-mobile-headline01-line-height);
+    letter-spacing: var(--typography-korean-mobile-headline01-letter-spacing);
+    font-family: var(--typography-korean-mobile-headline01-font-family);
   }
   
-  .typography-korean-mobile-button {
-    font-size: var(--typography-korean-mobile-button-font-size);
-    font-weight: var(--typography-korean-mobile-button-font-weight);
-    line-height: var(--typography-korean-mobile-button-line-height);
-    letter-spacing: var(--typography-korean-mobile-button-letter-spacing);
-    font-family: var(--typography-korean-mobile-button-font-family);
+  .typography-korean-mobile-headline02 {
+    font-size: var(--typography-korean-mobile-headline02-font-size);
+    font-weight: var(--typography-korean-mobile-headline02-font-weight);
+    line-height: var(--typography-korean-mobile-headline02-line-height);
+    letter-spacing: var(--typography-korean-mobile-headline02-letter-spacing);
+    font-family: var(--typography-korean-mobile-headline02-font-family);
   }
   
-  /* Korean Desktop Typography */
-  .typography-korean-desktop-h1 {
-    font-size: var(--typography-korean-desktop-h1-font-size);
-    font-weight: var(--typography-korean-desktop-h1-font-weight);
-    line-height: var(--typography-korean-desktop-h1-line-height);
-    letter-spacing: var(--typography-korean-desktop-h1-letter-spacing);
-    font-family: var(--typography-korean-desktop-h1-font-family);
+  .typography-korean-mobile-headline03 {
+    font-size: var(--typography-korean-mobile-headline03-font-size);
+    font-weight: var(--typography-korean-mobile-headline03-font-weight);
+    line-height: var(--typography-korean-mobile-headline03-line-height);
+    letter-spacing: var(--typography-korean-mobile-headline03-letter-spacing);
+    font-family: var(--typography-korean-mobile-headline03-font-family);
   }
   
-  .typography-korean-desktop-h2 {
-    font-size: var(--typography-korean-desktop-h2-font-size);
-    font-weight: var(--typography-korean-desktop-h2-font-weight);
-    line-height: var(--typography-korean-desktop-h2-line-height);
-    letter-spacing: var(--typography-korean-desktop-h2-letter-spacing);
-    font-family: var(--typography-korean-desktop-h2-font-family);
+  .typography-korean-mobile-title01 {
+    font-size: var(--typography-korean-mobile-title01-font-size);
+    font-weight: var(--typography-korean-mobile-title01-font-weight);
+    line-height: var(--typography-korean-mobile-title01-line-height);
+    letter-spacing: var(--typography-korean-mobile-title01-letter-spacing);
+    font-family: var(--typography-korean-mobile-title01-font-family);
   }
   
-  .typography-korean-desktop-h3 {
-    font-size: var(--typography-korean-desktop-h3-font-size);
-    font-weight: var(--typography-korean-desktop-h3-font-weight);
-    line-height: var(--typography-korean-desktop-h3-line-height);
-    letter-spacing: var(--typography-korean-desktop-h3-letter-spacing);
-    font-family: var(--typography-korean-desktop-h3-font-family);
+  .typography-korean-mobile-title02 {
+    font-size: var(--typography-korean-mobile-title02-font-size);
+    font-weight: var(--typography-korean-mobile-title02-font-weight);
+    line-height: var(--typography-korean-mobile-title02-line-height);
+    letter-spacing: var(--typography-korean-mobile-title02-letter-spacing);
+    font-family: var(--typography-korean-mobile-title02-font-family);
   }
   
-  .typography-korean-desktop-body1 {
-    font-size: var(--typography-korean-desktop-body1-font-size);
-    font-weight: var(--typography-korean-desktop-body1-font-weight);
-    line-height: var(--typography-korean-desktop-body1-line-height);
-    letter-spacing: var(--typography-korean-desktop-body1-letter-spacing);
-    font-family: var(--typography-korean-desktop-body1-font-family);
+  .typography-korean-mobile-title03 {
+    font-size: var(--typography-korean-mobile-title03-font-size);
+    font-weight: var(--typography-korean-mobile-title03-font-weight);
+    line-height: var(--typography-korean-mobile-title03-line-height);
+    letter-spacing: var(--typography-korean-mobile-title03-letter-spacing);
+    font-family: var(--typography-korean-mobile-title03-font-family);
   }
   
-  .typography-korean-desktop-button {
-    font-size: var(--typography-korean-desktop-button-font-size);
-    font-weight: var(--typography-korean-desktop-button-font-weight);
-    line-height: var(--typography-korean-desktop-button-line-height);
-    letter-spacing: var(--typography-korean-desktop-button-letter-spacing);
-    font-family: var(--typography-korean-desktop-button-font-family);
+  .typography-korean-mobile-subtitle01 {
+    font-size: var(--typography-korean-mobile-subtitle01-font-size);
+    font-weight: var(--typography-korean-mobile-subtitle01-font-weight);
+    line-height: var(--typography-korean-mobile-subtitle01-line-height);
+    letter-spacing: var(--typography-korean-mobile-subtitle01-letter-spacing);
+    font-family: var(--typography-korean-mobile-subtitle01-font-family);
   }
   
-  /* English Typography */
-  .typography-english-mobile-h1 {
-    font-size: var(--typography-english-mobile-h1-font-size);
-    font-weight: var(--typography-english-mobile-h1-font-weight);
-    line-height: var(--typography-english-mobile-h1-line-height);
-    letter-spacing: var(--typography-english-mobile-h1-letter-spacing);
-    font-family: var(--typography-english-mobile-h1-font-family);
+  .typography-korean-mobile-subtitle02 {
+    font-size: var(--typography-korean-mobile-subtitle02-font-size);
+    font-weight: var(--typography-korean-mobile-subtitle02-font-weight);
+    line-height: var(--typography-korean-mobile-subtitle02-line-height);
+    letter-spacing: var(--typography-korean-mobile-subtitle02-letter-spacing);
+    font-family: var(--typography-korean-mobile-subtitle02-font-family);
   }
   
-  .typography-english-mobile-h2 {
-    font-size: var(--typography-english-mobile-h2-font-size);
-    font-weight: var(--typography-english-mobile-h2-font-weight);
-    line-height: var(--typography-english-mobile-h2-line-height);
-    letter-spacing: var(--typography-english-mobile-h2-letter-spacing);
-    font-family: var(--typography-english-mobile-h2-font-family);
+  .typography-korean-mobile-body01 {
+    font-size: var(--typography-korean-mobile-body01-font-size);
+    font-weight: var(--typography-korean-mobile-body01-font-weight);
+    line-height: var(--typography-korean-mobile-body01-line-height);
+    letter-spacing: var(--typography-korean-mobile-body01-letter-spacing);
+    font-family: var(--typography-korean-mobile-body01-font-family);
   }
   
-  .typography-english-mobile-h3 {
-    font-size: var(--typography-english-mobile-h3-font-size);
-    font-weight: var(--typography-english-mobile-h3-font-weight);
-    line-height: var(--typography-english-mobile-h3-line-height);
-    letter-spacing: var(--typography-english-mobile-h3-letter-spacing);
-    font-family: var(--typography-english-mobile-h3-font-family);
+  .typography-korean-mobile-body02 {
+    font-size: var(--typography-korean-mobile-body02-font-size);
+    font-weight: var(--typography-korean-mobile-body02-font-weight);
+    line-height: var(--typography-korean-mobile-body02-line-height);
+    letter-spacing: var(--typography-korean-mobile-body02-letter-spacing);
+    font-family: var(--typography-korean-mobile-body02-font-family);
   }
   
-  .typography-english-mobile-body1 {
-    font-size: var(--typography-english-mobile-body1-font-size);
-    font-weight: var(--typography-english-mobile-body1-font-weight);
-    line-height: var(--typography-english-mobile-body1-line-height);
-    letter-spacing: var(--typography-english-mobile-body1-letter-spacing);
-    font-family: var(--typography-english-mobile-body1-font-family);
+  .typography-korean-mobile-body03 {
+    font-size: var(--typography-korean-mobile-body03-font-size);
+    font-weight: var(--typography-korean-mobile-body03-font-weight);
+    line-height: var(--typography-korean-mobile-body03-line-height);
+    letter-spacing: var(--typography-korean-mobile-body03-letter-spacing);
+    font-family: var(--typography-korean-mobile-body03-font-family);
   }
   
-  .typography-english-mobile-button {
-    font-size: var(--typography-english-mobile-button-font-size);
-    font-weight: var(--typography-english-mobile-button-font-weight);
-    line-height: var(--typography-english-mobile-button-line-height);
-    letter-spacing: var(--typography-english-mobile-button-letter-spacing);
-    font-family: var(--typography-english-mobile-button-font-family);
+  .typography-korean-mobile-bodyRegular01 {
+    font-size: var(--typography-korean-mobile-bodyRegular01-font-size);
+    font-weight: var(--typography-korean-mobile-bodyRegular01-font-weight);
+    line-height: var(--typography-korean-mobile-bodyRegular01-line-height);
+    letter-spacing: var(--typography-korean-mobile-bodyRegular01-letter-spacing);
+    font-family: var(--typography-korean-mobile-bodyRegular01-font-family);
   }
   
-  /* English Desktop Typography */
-  .typography-english-desktop-h1 {
-    font-size: var(--typography-english-desktop-h1-font-size);
-    font-weight: var(--typography-english-desktop-h1-font-weight);
-    line-height: var(--typography-english-desktop-h1-line-height);
-    letter-spacing: var(--typography-english-desktop-h1-letter-spacing);
-    font-family: var(--typography-english-desktop-h1-font-family);
+  .typography-korean-mobile-bodyRegular02 {
+    font-size: var(--typography-korean-mobile-bodyRegular02-font-size);
+    font-weight: var(--typography-korean-mobile-bodyRegular02-font-weight);
+    line-height: var(--typography-korean-mobile-bodyRegular02-line-height);
+    letter-spacing: var(--typography-korean-mobile-bodyRegular02-letter-spacing);
+    font-family: var(--typography-korean-mobile-bodyRegular02-font-family);
   }
   
-  .typography-english-desktop-h2 {
-    font-size: var(--typography-english-desktop-h2-font-size);
-    font-weight: var(--typography-english-desktop-h2-font-weight);
-    line-height: var(--typography-english-desktop-h2-line-height);
-    letter-spacing: var(--typography-english-desktop-h2-letter-spacing);
-    font-family: var(--typography-english-desktop-h2-font-family);
+  .typography-korean-mobile-bodyRegular03 {
+    font-size: var(--typography-korean-mobile-bodyRegular03-font-size);
+    font-weight: var(--typography-korean-mobile-bodyRegular03-font-weight);
+    line-height: var(--typography-korean-mobile-bodyRegular03-line-height);
+    letter-spacing: var(--typography-korean-mobile-bodyRegular03-letter-spacing);
+    font-family: var(--typography-korean-mobile-bodyRegular03-font-family);
   }
   
-  .typography-english-desktop-h3 {
-    font-size: var(--typography-english-desktop-h3-font-size);
-    font-weight: var(--typography-english-desktop-h3-font-weight);
-    line-height: var(--typography-english-desktop-h3-line-height);
-    letter-spacing: var(--typography-english-desktop-h3-letter-spacing);
-    font-family: var(--typography-english-desktop-h3-font-family);
+  .typography-korean-mobile-caption01 {
+    font-size: var(--typography-korean-mobile-caption01-font-size);
+    font-weight: var(--typography-korean-mobile-caption01-font-weight);
+    line-height: var(--typography-korean-mobile-caption01-line-height);
+    letter-spacing: var(--typography-korean-mobile-caption01-letter-spacing);
+    font-family: var(--typography-korean-mobile-caption01-font-family);
   }
   
-  .typography-english-desktop-body1 {
-    font-size: var(--typography-english-desktop-body1-font-size);
-    font-weight: var(--typography-english-desktop-body1-font-weight);
-    line-height: var(--typography-english-desktop-body1-line-height);
-    letter-spacing: var(--typography-english-desktop-body1-letter-spacing);
-    font-family: var(--typography-english-desktop-body1-font-family);
+  .typography-korean-mobile-caption02 {
+    font-size: var(--typography-korean-mobile-caption02-font-size);
+    font-weight: var(--typography-korean-mobile-caption02-font-weight);
+    line-height: var(--typography-korean-mobile-caption02-line-height);
+    letter-spacing: var(--typography-korean-mobile-caption02-letter-spacing);
+    font-family: var(--typography-korean-mobile-caption02-font-family);
   }
   
-  .typography-english-desktop-button {
-    font-size: var(--typography-english-desktop-button-font-size);
-    font-weight: var(--typography-english-desktop-button-font-weight);
-    line-height: var(--typography-english-desktop-button-line-height);
-    letter-spacing: var(--typography-english-desktop-button-letter-spacing);
-    font-family: var(--typography-english-desktop-button-font-family);
+  .typography-korean-mobile-caption03 {
+    font-size: var(--typography-korean-mobile-caption03-font-size);
+    font-weight: var(--typography-korean-mobile-caption03-font-weight);
+    line-height: var(--typography-korean-mobile-caption03-line-height);
+    letter-spacing: var(--typography-korean-mobile-caption03-letter-spacing);
+    font-family: var(--typography-korean-mobile-caption03-font-family);
   }
   
-  /* Responsive Typography Classes */
+  .typography-korean-mobile-captionMedium {
+    font-size: var(--typography-korean-mobile-captionMedium-font-size);
+    font-weight: var(--typography-korean-mobile-captionMedium-font-weight);
+    line-height: var(--typography-korean-mobile-captionMedium-line-height);
+    letter-spacing: var(--typography-korean-mobile-captionMedium-letter-spacing);
+    font-family: var(--typography-korean-mobile-captionMedium-font-family);
+  }
+  
+  /* Typography Utility Classes - Korean Desktop */
   @media (min-width: 768px) {
-    .typography-korean-mobile-h1 { @apply typography-korean-desktop-h1; }
-    .typography-korean-mobile-h2 { @apply typography-korean-desktop-h2; }
-    .typography-korean-mobile-h3 { @apply typography-korean-desktop-h3; }
-    .typography-korean-mobile-body1 { @apply typography-korean-desktop-body1; }
-    .typography-korean-mobile-button { @apply typography-korean-desktop-button; }
+    .typography-korean-mobile-webHeadline01 {
+      font-size: var(--typography-korean-desktop-webHeadline01-font-size);
+      font-weight: var(--typography-korean-desktop-webHeadline01-font-weight);
+      line-height: var(--typography-korean-desktop-webHeadline01-line-height);
+      letter-spacing: var(--typography-korean-desktop-webHeadline01-letter-spacing);
+      font-family: var(--typography-korean-desktop-webHeadline01-font-family);
+    }
     
-    .typography-english-mobile-h1 { @apply typography-english-desktop-h1; }
-    .typography-english-mobile-h2 { @apply typography-english-desktop-h2; }
-    .typography-english-mobile-h3 { @apply typography-english-desktop-h3; }
-    .typography-english-mobile-body1 { @apply typography-english-desktop-body1; }
-    .typography-english-mobile-button { @apply typography-english-desktop-button; }
+    .typography-korean-mobile-webHeadline02 {
+      font-size: var(--typography-korean-desktop-webHeadline02-font-size);
+      font-weight: var(--typography-korean-desktop-webHeadline02-font-weight);
+      line-height: var(--typography-korean-desktop-webHeadline02-line-height);
+      letter-spacing: var(--typography-korean-desktop-webHeadline02-letter-spacing);
+      font-family: var(--typography-korean-desktop-webHeadline02-font-family);
+    }
+    
+    .typography-korean-mobile-webHeadline03 {
+      font-size: var(--typography-korean-desktop-webHeadline03-font-size);
+      font-weight: var(--typography-korean-desktop-webHeadline03-font-weight);
+      line-height: var(--typography-korean-desktop-webHeadline03-line-height);
+      letter-spacing: var(--typography-korean-desktop-webHeadline03-letter-spacing);
+      font-family: var(--typography-korean-desktop-webHeadline03-font-family);
+    }
+    
+    .typography-korean-mobile-headline01 {
+      font-size: var(--typography-korean-desktop-headline01-font-size);
+      font-weight: var(--typography-korean-desktop-headline01-font-weight);
+      line-height: var(--typography-korean-desktop-headline01-line-height);
+      letter-spacing: var(--typography-korean-desktop-headline01-letter-spacing);
+      font-family: var(--typography-korean-desktop-headline01-font-family);
+    }
+    
+    .typography-korean-mobile-headline02 {
+      font-size: var(--typography-korean-desktop-headline02-font-size);
+      font-weight: var(--typography-korean-desktop-headline02-font-weight);
+      line-height: var(--typography-korean-desktop-headline02-line-height);
+      letter-spacing: var(--typography-korean-desktop-headline02-letter-spacing);
+      font-family: var(--typography-korean-desktop-headline02-font-family);
+    }
+    
+    .typography-korean-mobile-headline03 {
+      font-size: var(--typography-korean-desktop-headline03-font-size);
+      font-weight: var(--typography-korean-desktop-headline03-font-weight);
+      line-height: var(--typography-korean-desktop-headline03-line-height);
+      letter-spacing: var(--typography-korean-desktop-headline03-letter-spacing);
+      font-family: var(--typography-korean-desktop-headline03-font-family);
+    }
+    
+    .typography-korean-mobile-title01 {
+      font-size: var(--typography-korean-desktop-title01-font-size);
+      font-weight: var(--typography-korean-desktop-title01-font-weight);
+      line-height: var(--typography-korean-desktop-title01-line-height);
+      letter-spacing: var(--typography-korean-desktop-title01-letter-spacing);
+      font-family: var(--typography-korean-desktop-title01-font-family);
+    }
+    
+    .typography-korean-mobile-title02 {
+      font-size: var(--typography-korean-desktop-title02-font-size);
+      font-weight: var(--typography-korean-desktop-title02-font-weight);
+      line-height: var(--typography-korean-desktop-title02-line-height);
+      letter-spacing: var(--typography-korean-desktop-title02-letter-spacing);
+      font-family: var(--typography-korean-desktop-title02-font-family);
+    }
+    
+    .typography-korean-mobile-title03 {
+      font-size: var(--typography-korean-desktop-title03-font-size);
+      font-weight: var(--typography-korean-desktop-title03-font-weight);
+      line-height: var(--typography-korean-desktop-title03-line-height);
+      letter-spacing: var(--typography-korean-desktop-title03-letter-spacing);
+      font-family: var(--typography-korean-desktop-title03-font-family);
+    }
+    
+    .typography-korean-mobile-subtitle01 {
+      font-size: var(--typography-korean-desktop-subtitle01-font-size);
+      font-weight: var(--typography-korean-desktop-subtitle01-font-weight);
+      line-height: var(--typography-korean-desktop-subtitle01-line-height);
+      letter-spacing: var(--typography-korean-desktop-subtitle01-letter-spacing);
+      font-family: var(--typography-korean-desktop-subtitle01-font-family);
+    }
+    
+    .typography-korean-mobile-subtitle02 {
+      font-size: var(--typography-korean-desktop-subtitle02-font-size);
+      font-weight: var(--typography-korean-desktop-subtitle02-font-weight);
+      line-height: var(--typography-korean-desktop-subtitle02-line-height);
+      letter-spacing: var(--typography-korean-desktop-subtitle02-letter-spacing);
+      font-family: var(--typography-korean-desktop-subtitle02-font-family);
+    }
+    
+    .typography-korean-mobile-body01 {
+      font-size: var(--typography-korean-desktop-body01-font-size);
+      font-weight: var(--typography-korean-desktop-body01-font-weight);
+      line-height: var(--typography-korean-desktop-body01-line-height);
+      letter-spacing: var(--typography-korean-desktop-body01-letter-spacing);
+      font-family: var(--typography-korean-desktop-body01-font-family);
+    }
+    
+    .typography-korean-mobile-body02 {
+      font-size: var(--typography-korean-desktop-body02-font-size);
+      font-weight: var(--typography-korean-desktop-body02-font-weight);
+      line-height: var(--typography-korean-desktop-body02-line-height);
+      letter-spacing: var(--typography-korean-desktop-body02-letter-spacing);
+      font-family: var(--typography-korean-desktop-body02-font-family);
+    }
+    
+    .typography-korean-mobile-body03 {
+      font-size: var(--typography-korean-desktop-body03-font-size);
+      font-weight: var(--typography-korean-desktop-body03-font-weight);
+      line-height: var(--typography-korean-desktop-body03-line-height);
+      letter-spacing: var(--typography-korean-desktop-body03-letter-spacing);
+      font-family: var(--typography-korean-desktop-body03-font-family);
+    }
+    
+    .typography-korean-mobile-bodyRegular01 {
+      font-size: var(--typography-korean-desktop-bodyRegular01-font-size);
+      font-weight: var(--typography-korean-desktop-bodyRegular01-font-weight);
+      line-height: var(--typography-korean-desktop-bodyRegular01-line-height);
+      letter-spacing: var(--typography-korean-desktop-bodyRegular01-letter-spacing);
+      font-family: var(--typography-korean-desktop-bodyRegular01-font-family);
+    }
+    
+    .typography-korean-mobile-bodyRegular02 {
+      font-size: var(--typography-korean-desktop-bodyRegular02-font-size);
+      font-weight: var(--typography-korean-desktop-bodyRegular02-font-weight);
+      line-height: var(--typography-korean-desktop-bodyRegular02-line-height);
+      letter-spacing: var(--typography-korean-desktop-bodyRegular02-letter-spacing);
+      font-family: var(--typography-korean-desktop-bodyRegular02-font-family);
+    }
+    
+    .typography-korean-mobile-bodyRegular03 {
+      font-size: var(--typography-korean-desktop-bodyRegular03-font-size);
+      font-weight: var(--typography-korean-desktop-bodyRegular03-font-weight);
+      line-height: var(--typography-korean-desktop-bodyRegular03-line-height);
+      letter-spacing: var(--typography-korean-desktop-bodyRegular03-letter-spacing);
+      font-family: var(--typography-korean-desktop-bodyRegular03-font-family);
+    }
+    
+    .typography-korean-mobile-caption01 {
+      font-size: var(--typography-korean-desktop-caption01-font-size);
+      font-weight: var(--typography-korean-desktop-caption01-font-weight);
+      line-height: var(--typography-korean-desktop-caption01-line-height);
+      letter-spacing: var(--typography-korean-desktop-caption01-letter-spacing);
+      font-family: var(--typography-korean-desktop-caption01-font-family);
+    }
+    
+    .typography-korean-mobile-caption02 {
+      font-size: var(--typography-korean-desktop-caption02-font-size);
+      font-weight: var(--typography-korean-desktop-caption02-font-weight);
+      line-height: var(--typography-korean-desktop-caption02-line-height);
+      letter-spacing: var(--typography-korean-desktop-caption02-letter-spacing);
+      font-family: var(--typography-korean-desktop-caption02-font-family);
+    }
+    
+    .typography-korean-mobile-caption03 {
+      font-size: var(--typography-korean-desktop-caption03-font-size);
+      font-weight: var(--typography-korean-desktop-caption03-font-weight);
+      line-height: var(--typography-korean-desktop-caption03-line-height);
+      letter-spacing: var(--typography-korean-desktop-caption03-letter-spacing);
+      font-family: var(--typography-korean-desktop-caption03-font-family);
+    }
+    
+    .typography-korean-mobile-captionMedium {
+      font-size: var(--typography-korean-desktop-captionMedium-font-size);
+      font-weight: var(--typography-korean-desktop-captionMedium-font-weight);
+      line-height: var(--typography-korean-desktop-captionMedium-line-height);
+      letter-spacing: var(--typography-korean-desktop-captionMedium-letter-spacing);
+      font-family: var(--typography-korean-desktop-captionMedium-font-family);
+    }
   }
 }

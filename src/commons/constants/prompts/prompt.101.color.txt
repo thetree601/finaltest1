@@ -8,7 +8,7 @@
 
 ==============================================
 
-조건-피그마) 활용할MCP: CursorTalkToFigmaMCP(채널명: i2aqnbkm)
+조건-피그마) 활용할MCP: CursorTalkToFigmaMCP(채널명: 3y9ipnjl)
 조건-피그마) 구현될 파운데이션 노드ID: 3459:1130
 
 조건-파일경로) 구현될 TS          파일경로: src/commons/constants/color.ts

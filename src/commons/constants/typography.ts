@@ -11,8 +11,8 @@ export const fontFamily = {
     mono: 'JetBrains Mono, "Fira Code", "SF Mono", Monaco, Inconsolata, "Roboto Mono", "Source Code Pro", monospace',
   },
   english: {
-    primary: 'SUIT Variable, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", sans-serif',
-    secondary: 'SUIT Variable, sans-serif',
+    primary: 'Inter, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", sans-serif',
+    secondary: 'Roboto, sans-serif',
     mono: 'JetBrains Mono, "Fira Code", "SF Mono", Monaco, Inconsolata, "Roboto Mono", "Source Code Pro", monospace',
   },
 } as const;
