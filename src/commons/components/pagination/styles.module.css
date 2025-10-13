@@ -1,0 +1,131 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #D4D3D3; /* gray-20 */
+  background: #FFFFFF; /* white */
+  color: #333333; /* gray-80 */
+  border-radius: 8px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+
+.page {
+  font-family: var(--font-sans, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Roboto, sans-serif);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.control {
+  min-width: 32px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.ellipsis {
+  border: none;
+  background: transparent;
+  color: #777777; /* gray-60 */
+  cursor: default;
+}
+
+.active {
+  border-color: #3A5CF3; /* blue-60 */
+  color: #3A5CF3;
+  font-weight: 500;
+}
+
+.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.primary .item {
+  border-color: #D4D3D3; /* gray-20 */
+}
+
+.primary .active {
+  border-color: #3A5CF3;
+  color: #3A5CF3;
+}
+
+.secondary .item {
+  border-color: #D2D4DD; /* coolGray-30 */
+  background: #F8F8FA; /* coolGray-01 */
+}
+
+.secondary .active {
+  border-color: #3A5CF3;
+  background: #F0F7FF; /* blue-05 */
+  color: #3A5CF3;
+}
+
+.tertiary .item {
+  border-color: transparent;
+  background: transparent;
+}
+
+.tertiary .active {
+  color: #3A5CF3;
+}
+
+/* Sizes */
+.small .item {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.small .page {
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.medium .item {
+  min-width: 32px;
+  height: 32px;
+}
+
+.large .item {
+  min-width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.large .page {
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* Themes */
+.light .item {
+  background: #FFFFFF;
+  color: #333333;
+  border-color: #D4D3D3;
+}
+
+.dark .item {
+  background: #1C1C1C; /* gray-90 */
+  color: #E4E4E4; /* gray-10 */
+  border-color: #5F5F5F; /* gray-70 */
+}
+
+.dark .active {
+  border-color: #497CFF; /* blue-50 */
+  color: #6DA5FA; /* blue-40 */
+}
+
+
