@@ -10,7 +10,7 @@
 
 ==============================================
 
-조건-피그마) 활용할MCP: CursorTalkToFigmaMCP(채널명: jab5zwyt)
+조건-피그마) 활용할MCP: CursorTalkToFigmaMCP(채널명: f5st2q0d)
 조건-피그마) 참고할 공통컴포넌트 노드ID: 3:1566
 
 조건-파일경로) 구현될 TSX 파일경로: src/commons/components/searchbar/index.tsx

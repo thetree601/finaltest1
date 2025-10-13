@@ -1,0 +1,119 @@
+/* SearchBar CSS Module */
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border-radius: 100px; /* Figma cornerRadius */
+  border: 1px solid #C7C7C7; /* coolGray-40 */
+  background: #FFFFFF; /* light background */
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.input {
+  flex: 1 1 auto;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1C1C1C; /* gray-90 */
+}
+
+/* size */
+.small {
+  height: 40px;
+}
+.small .icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 12px;
+}
+.small .input {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 10px 12px;
+}
+
+.medium {
+  height: 48px; /* Figma height */
+}
+.medium .icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 12px;
+}
+.medium .input {
+  font-size: 16px;
+  line-height: 24px;
+  padding: 12px 14px;
+}
+
+.large {
+  height: 56px;
+}
+.large .icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 16px;
+}
+.large .input {
+  font-size: 18px;
+  line-height: 28px;
+  padding: 14px 16px;
+}
+
+/* variant */
+.primary {
+  border-color: #C7C9D5; /* coolGray-40 */
+  background: #FFFFFF;
+}
+.secondary {
+  border-color: #DDDFE5; /* coolGray-20 */
+  background: #F8F8FA; /* coolGray-01 */
+}
+.tertiary {
+  border-color: #E4E4E4; /* gray-10 */
+  background: #FFFFFF;
+}
+
+/* theme */
+.light {
+  /* defaults already reflect light */
+}
+.dark {
+  border-color: #5F5F5F; /* gray-70 */
+  background: #1C1C1C; /* gray-90 */
+}
+.dark .input {
+  color: #FFFFFF; /* gray-white */
+}
+.placeholderLight::placeholder {
+  color: #ABABAB; /* gray-40 from Figma text */
+}
+.placeholderDark::placeholder {
+  color: #C7C7C7; /* coolGray-40 */
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  border-color: #F03851; /* red-30 */
+}
+
+
