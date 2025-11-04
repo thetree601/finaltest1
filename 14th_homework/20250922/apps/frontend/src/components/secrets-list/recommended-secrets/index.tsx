@@ -1,0 +1,53 @@
+"use client";
+
+import React from "react";
+import Image from "next/image";
+import { Secret } from "../types";
+import styles from "./styles.module.css";
+
+interface RecommendedSecretsProps {
+  secrets: Secret[];
+}
+
+export default function RecommendedSecrets({ secrets }: RecommendedSecretsProps) {
+  const formatPrice = (price: number) => {
+    return `₩${price.toLocaleString()}`;
+  };
+
+  return (
+    <section className={styles.recommendedSecretsSection}>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>🕵️ 당신이 알고 싶을만한 비밀들</h2>
+        <p className={styles.sectionSubtitle}>당신의 취향을 분석한 맞춤 추천</p>
+      </div>
+
+      <div className={styles.secretsGrid}>
+        {secrets.map((secret) => (
+          <div key={secret.id} className={styles.secretCard}>
+            <div className={styles.imageWrapper}>
+              <Image
+                src={secret.img}
+                alt={secret.title}
+                fill
+                className={styles.image}
+                sizes="(max-width: 768px) 50vw, 25vw"
+              />
+              <div className={styles.overlay}>
+                <div className={styles.blurOverlay} />
+              </div>
+            </div>
+            <div className={styles.cardContent}>
+              <h3 className={styles.title}>{secret.title}</h3>
+              <p className={styles.desc}>{secret.desc}</p>
+              <div className={styles.priceContainer}>
+                <span className={styles.price}>{formatPrice(secret.price)}</span>
+              </div>
+              <div className={styles.hoverText}>🔍 더 알아보기</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+

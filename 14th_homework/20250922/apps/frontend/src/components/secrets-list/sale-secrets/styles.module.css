@@ -1,0 +1,213 @@
+.saleSecretsSection {
+  padding: 4rem 2rem;
+  margin-bottom: 4rem;
+  animation: fadeUp 0.8s ease-out;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.timerIcon {
+  font-size: 2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.sectionTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #c7a74a;
+  text-shadow: 0 0 10px rgba(199, 167, 74, 0.3);
+}
+
+.sectionSubtitle {
+  font-size: 0.9rem;
+  color: #aaa;
+  font-style: italic;
+}
+
+.secretsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.secretCard {
+  background: #1b1b1b;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  cursor: pointer;
+  border: 1px solid rgba(199, 167, 74, 0.1);
+}
+
+.secretCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 0 25px rgba(199, 167, 74, 0.3);
+  border-color: rgba(199, 167, 74, 0.4);
+  background: #1f1f1f;
+}
+
+.imageWrapper {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.image {
+  object-fit: cover;
+  filter: blur(1px) brightness(0.6);
+  transition: all 0.4s ease;
+}
+
+.secretCard:hover .image {
+  filter: blur(0) brightness(0.75);
+  transform: scale(1.1);
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0.6) 0%,
+    transparent 50%,
+    rgba(10, 10, 10, 0.8) 100%
+  );
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 1rem;
+}
+
+.timeBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(199, 167, 74, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid rgba(199, 167, 74, 0.4);
+}
+
+.timeIcon {
+  font-size: 1rem;
+}
+
+.timeText {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffde73;
+}
+
+.cardContent {
+  padding: 1.5rem;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #eee;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+}
+
+.desc {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 1rem;
+  font-style: italic;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.priceContainer {
+  margin-bottom: 0.5rem;
+}
+
+.price {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #c7a74a;
+  text-shadow: 0 0 8px rgba(199, 167, 74, 0.4);
+}
+
+.hoverText {
+  font-size: 0.85rem;
+  color: #ffde73;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.secretCard:hover .hoverText {
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .saleSecretsSection {
+    padding: 2rem 1rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
+  }
+
+  .secretsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .imageWrapper {
+    height: 200px;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .price {
+    font-size: 1.2rem;
+  }
+}
+

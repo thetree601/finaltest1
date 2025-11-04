@@ -1,0 +1,51 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(
+    to bottom,
+    #0a0a0a 0%,
+    #121212 50%,
+    #0a0a0a 100%
+  );
+  color: #eee;
+  padding-bottom: 4rem;
+}
+
+.header {
+  text-align: center;
+  padding: 4rem 2rem 2rem;
+  border-bottom: 1px solid rgba(199, 167, 74, 0.2);
+  margin-bottom: 3rem;
+}
+
+.mainTitle {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #c7a74a;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 20px rgba(199, 167, 74, 0.5);
+  letter-spacing: 2px;
+}
+
+.mainSubtitle {
+  font-size: 1.1rem;
+  color: #aaa;
+  font-style: italic;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 2rem 1rem 1rem;
+  }
+
+  .mainTitle {
+    font-size: 2.5rem;
+  }
+
+  .mainSubtitle {
+    font-size: 1rem;
+  }
+}
+

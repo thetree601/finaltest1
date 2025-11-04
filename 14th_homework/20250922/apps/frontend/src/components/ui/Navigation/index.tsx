@@ -22,9 +22,9 @@ export default function Navigation({
           className="header-logo" 
         />
         <nav className="header-nav">
-          <a href="#">트립토크</a>
-          <a href="#">숙박권 구매</a>
-          <a href="#">마이 페이지</a>
+          <Link href="/boards">트립토크</Link>
+          <Link href="/secrets">비밀 거래</Link>
+          <Link href="/mypage">마이 페이지</Link>
         </nav>
       </div>
       
