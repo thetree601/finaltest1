@@ -4,6 +4,36 @@ import React from "react";
 import { motion } from "framer-motion";
 import styles from "./styles.module.css";
 
+async function cancelSubscription() {
+  try {
+    const key =
+      typeof window !== "undefined" ? localStorage.getItem("lastTransactionKey") : null;
+    if (!key) {
+      alert("최근 결제 내역을 찾을 수 없습니다. 결제 후 다시 시도해주세요.");
+      return;
+    }
+    const res = await fetch("/api/payments/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ transactionKey: key }),
+    });
+    const result = await res.json();
+    if (!res.ok || !result?.success) {
+      alert(result?.error || "구독 취소에 실패했습니다.");
+      return;
+    }
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isSubscribed", "false");
+      localStorage.removeItem("lastTransactionKey");
+      window.dispatchEvent(new StorageEvent("storage", { key: "isSubscribed", newValue: "false" }));
+    }
+    alert("구독이 취소되었습니다.");
+  } catch (e) {
+    console.error(e);
+    alert("구독 취소 처리 중 오류가 발생했습니다.");
+  }
+}
+
 type ReflectionItem = {
   id: string;
   question: string;
@@ -230,6 +260,7 @@ export default function MyPage() {
               <button className={styles.quickBtn} type="button">새 성찰 시작</button>
               <button className={styles.quickBtn} type="button">가치 재정비</button>
               <button className={styles.quickBtn} type="button">아카이브 보기</button>
+              <button className={`${styles.quickBtn} ${styles.cancelBtn}`} type="button" onClick={cancelSubscription} data-testid="cancel-subscription-btn">구독 취소</button>
             </div>
           </motion.section>
         </div>

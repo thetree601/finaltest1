@@ -58,15 +58,24 @@ export async function POST(request: NextRequest) {
     );
 
     if (!portoneResponse.ok) {
-      const errorData = await portoneResponse.json().catch(() => ({}));
+      const errorData = await portoneResponse.json().catch(() => ({} as any));
       return NextResponse.json(
         { success: false, error: errorData.message || "결제 요청에 실패했습니다." },
         { status: portoneResponse.status }
       );
     }
 
-    // 성공 응답 반환
-    return NextResponse.json({ success: true });
+    // 성공 응답 반환 (포트원 응답의 식별자 일부 전달)
+    const result = await portoneResponse.json().catch(() => ({} as any));
+    // 포트원 응답 내에서 취소에 사용할 수 있는 키 후보(txId, transactionKey 등)를 최대한 전달
+    const transactionKey =
+      result?.transactionKey || result?.txId || result?.paymentId || paymentId;
+    return NextResponse.json({
+      success: true,
+      transactionKey,
+      txId: result?.txId,
+      paymentId: result?.paymentId ?? paymentId,
+    });
   } catch (error) {
     console.error("결제 API 오류:", error);
     return NextResponse.json(

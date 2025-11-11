@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import MySecrets from "./my-secrets";
+import SubscriptionStatus from "./subscription-status";
 import PointHistory from "./point-history";
 import styles from "./styles.module.css";
 
@@ -34,6 +35,7 @@ export default function SecretsMyPage() {
       </div>
 
       <MySecrets />
+      <SubscriptionStatus isSubscribed />
       <PointHistory />
     </div>
   );

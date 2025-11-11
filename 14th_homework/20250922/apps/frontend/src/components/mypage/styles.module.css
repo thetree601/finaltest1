@@ -225,6 +225,15 @@
   cursor: pointer;
 }
 
+.cancelBtn {
+  border-color: rgba(255, 86, 86, 0.25);
+  background: rgba(255, 86, 86, 0.08);
+  color: #ff9b9b;
+}
+.cancelBtn:hover {
+  background: rgba(255, 86, 86, 0.14);
+}
+
 .nextBox {
   display: flex;
   align-items: center;
