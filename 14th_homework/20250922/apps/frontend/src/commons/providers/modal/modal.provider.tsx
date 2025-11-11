@@ -63,7 +63,13 @@ interface ModalPortalProps {
 }
 
 const ModalPortal: React.FC<ModalPortalProps> = ({ children, isOpen, onClose }) => {
-  if (!isOpen) return null;
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isOpen || !isMounted) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -71,7 +77,11 @@ const ModalPortal: React.FC<ModalPortalProps> = ({ children, isOpen, onClose }) 
     }
   };
 
-  const modalRoot = document.getElementById('modal-root') || document.body;
+  const modalRoot = typeof document !== 'undefined' 
+    ? (document.getElementById('modal-root') || document.body)
+    : null;
+
+  if (!modalRoot) return null;
 
   return createPortal(
     <div className={styles.backdrop} onClick={handleBackdropClick}>

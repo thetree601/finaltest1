@@ -35,7 +35,7 @@ export default function SecretsMyPage() {
       </div>
 
       <MySecrets />
-      <SubscriptionStatus isSubscribed />
+      <SubscriptionStatus />
       <PointHistory />
     </div>
   );

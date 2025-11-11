@@ -38,6 +38,9 @@ importers:
       '@supabase/supabase-js':
         specifier: ^2.57.4
         version: 2.58.0
+      '@tanstack/react-query':
+        specifier: ^5.90.7
+        version: 5.90.7(react@18.3.1)
       '@triptalk/ui-components':
         specifier: workspace:*
         version: link:../../packages/ui-components
@@ -1725,6 +1728,14 @@ packages:
 
   '@swc/helpers@0.5.5':
     resolution: {integrity: sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==}
+
+  '@tanstack/query-core@5.90.7':
+    resolution: {integrity: sha512-6PN65csiuTNfBMXqQUxQhCNdtm1rV+9kC9YwWAIKcaxAauq3Wu7p18j3gQY3YIBJU70jT/wzCCZ2uqto/vQgiQ==}
+
+  '@tanstack/react-query@5.90.7':
+    resolution: {integrity: sha512-wAHc/cgKzW7LZNFloThyHnV/AX9gTg3w5yAv0gvQHPZoCnepwqCMtzbuPbb2UvfvO32XZ46e8bPOYbfZhzVnnQ==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -6633,6 +6644,13 @@ snapshots:
     dependencies:
       '@swc/counter': 0.1.3
       tslib: 2.8.1
+
+  '@tanstack/query-core@5.90.7': {}
+
+  '@tanstack/react-query@5.90.7(react@18.3.1)':
+    dependencies:
+      '@tanstack/query-core': 5.90.7
+      react: 18.3.1
 
   '@testing-library/dom@10.4.0':
     dependencies:

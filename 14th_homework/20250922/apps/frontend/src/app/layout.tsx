@@ -1,6 +1,7 @@
 import "./globals.css";
 import ApiUploadProvider from "@/commons/providers/api-upload-provider";
 import { ModalProvider } from "@/commons/providers/modal/modal.provider";
+import { ReactQueryProvider } from "@/commons/providers/react-query/react-query.provider";
 import React from 'react';
 
 export const metadata = {
@@ -12,11 +13,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <body>
-        <ApiUploadProvider>
-          <ModalProvider>
-            {children}
-          </ModalProvider>
-        </ApiUploadProvider>
+        <ReactQueryProvider>
+          <ApiUploadProvider>
+            <ModalProvider>
+              {children}
+            </ModalProvider>
+          </ApiUploadProvider>
+        </ReactQueryProvider>
       </body>
     </html>
   );

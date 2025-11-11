@@ -27,6 +27,11 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "**/*.stories.ts*",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
   ]
 }

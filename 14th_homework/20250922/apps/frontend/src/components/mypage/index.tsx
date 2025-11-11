@@ -1,38 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import styles from "./styles.module.css";
-
-async function cancelSubscription() {
-  try {
-    const key =
-      typeof window !== "undefined" ? localStorage.getItem("lastTransactionKey") : null;
-    if (!key) {
-      alert("최근 결제 내역을 찾을 수 없습니다. 결제 후 다시 시도해주세요.");
-      return;
-    }
-    const res = await fetch("/api/payments/cancel", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transactionKey: key }),
-    });
-    const result = await res.json();
-    if (!res.ok || !result?.success) {
-      alert(result?.error || "구독 취소에 실패했습니다.");
-      return;
-    }
-    if (typeof window !== "undefined") {
-      localStorage.setItem("isSubscribed", "false");
-      localStorage.removeItem("lastTransactionKey");
-      window.dispatchEvent(new StorageEvent("storage", { key: "isSubscribed", newValue: "false" }));
-    }
-    alert("구독이 취소되었습니다.");
-  } catch (e) {
-    console.error(e);
-    alert("구독 취소 처리 중 오류가 발생했습니다.");
-  }
-}
+import { useModal } from "@/commons/providers/modal/modal.provider";
+import { usePaymentCancel } from "@/app/mypage/hooks/index.payment.cancel.hook";
+import { usePaymentStatus } from "@/app/mypage/hooks/index.payment.status.hook";
+import { usePaymentSubscription } from "@/app/payments/hooks/index.payment.hook";
 
 type ReflectionItem = {
   id: string;
@@ -79,6 +53,158 @@ function CompassIcon() {
 }
 
 export default function MyPage() {
+  const { cancel, isProcessing } = usePaymentCancel();
+  const { statusMessage, canCancel, canSubscribe, transactionKeyForCancel, isLoading: isStatusLoading, refetch } = usePaymentStatus();
+  const { subscribe, isProcessing: isSubscribeProcessing } = usePaymentSubscription();
+  let openModal: ((content: React.ReactNode) => void) | null = null;
+  let closeModal: (() => void) | null = null;
+
+  try {
+    const modal = useModal();
+    openModal = modal.openModal;
+    closeModal = modal.closeModal;
+  } catch (error) {
+    console.warn("ModalProvider를 찾을 수 없습니다. 기본 confirm을 사용합니다.", error);
+  }
+
+  // 컴포넌트 마운트 시 최신 구독 상태 조회
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  const handleCancelSubscription = (transactionKey: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isSubscribed", "false");
+      localStorage.removeItem("lastTransactionKey");
+      window.dispatchEvent(new StorageEvent("storage", { key: "isSubscribed", newValue: "false" }));
+    }
+    cancel(transactionKey);
+  };
+
+  const openCancelConfirm = () => {
+    console.log("구독 취소 버튼 클릭됨");
+    
+    // transactionKeyForCancel을 우선 사용, 없으면 localStorage에서 가져오기
+    const key = transactionKeyForCancel || (typeof window !== "undefined" ? localStorage.getItem("lastTransactionKey") : null);
+    
+    // ModalProvider가 없거나 openModal이 없으면 바로 fallback 사용
+    if (!openModal) {
+      console.log("openModal이 없어 fallback 사용");
+      const ok = typeof window !== "undefined" ? window.confirm("구독을 취소하시겠습니까?") : false;
+      if (ok) {
+        if (key) {
+          handleCancelSubscription(key);
+        } else {
+          openManualKeyModal();
+        }
+      }
+      return;
+    }
+
+    try {
+      console.log("모달 열기 시도");
+      openModal(
+        <div className={styles.modalCard} role="dialog" aria-modal="true">
+          <div className={styles.modalHeader}>
+            <h4 className={styles.modalTitle}>구독을 취소하시겠습니까?</h4>
+            <p className={styles.modalDesc}>확인을 누르면 즉시 결제가 취소됩니다.</p>
+          </div>
+          <div className={styles.modalActions}>
+            <button
+              type="button"
+              className={`${styles.modalButton} ${styles.modalButtonGhost}`}
+              onClick={closeModal || (() => {})}
+              data-testid="cancel-subscription-cancel"
+            >
+              닫기
+            </button>
+            <button
+              type="button"
+              className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
+              onClick={() => {
+                if (key) {
+                  handleCancelSubscription(key);
+                  if (closeModal) closeModal();
+                  return;
+                }
+                // fallback: transactionKey 직접 입력 모달
+                openManualKeyModal();
+              }}
+              data-testid="cancel-subscription-confirm"
+              disabled={isProcessing}
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      );
+      console.log("모달 열기 완료");
+    } catch (error) {
+      console.error("모달 열기 실패:", error);
+      // 최후 폴백: 기본 confirm
+      const ok = typeof window !== "undefined" ? window.confirm("구독을 취소하시겠습니까?") : false;
+      if (ok) {
+        if (key) {
+          handleCancelSubscription(key);
+        } else {
+          openManualKeyModal();
+        }
+      }
+    }
+  };
+
+  const openManualKeyModal = () => {
+    if (!openModal) {
+      const key = prompt("트랜잭션 키를 입력하세요:");
+      if (key) {
+        handleCancelSubscription(key);
+      }
+      return;
+    }
+
+    let manualKey = "";
+    openModal(
+      <div className={styles.modalCard} role="dialog" aria-modal="true">
+        <div className={styles.modalHeader}>
+          <h4 className={styles.modalTitle}>트랜잭션 키 입력</h4>
+          <p className={styles.modalDesc}>포트원 결제의 transactionKey/txId/paymentId 중 하나를 입력하세요.</p>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <input
+            data-testid="transaction-key-input"
+            className={styles.modalInput}
+            placeholder="예) pay_..., tx_..., payment-..."
+            onChange={(e) => { manualKey = e.target.value; }}
+          />
+        </div>
+        <div className={styles.modalActions}>
+          <button
+            type="button"
+            className={`${styles.modalButton} ${styles.modalButtonGhost}`}
+            onClick={closeModal || (() => {})}
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            className={`${styles.modalButton} ${styles.modalButtonPrimary}`}
+            onClick={() => {
+              if (!manualKey) {
+                alert("트랜잭션 키를 입력해주세요.");
+                return;
+              }
+              handleCancelSubscription(manualKey);
+              if (closeModal) closeModal();
+            }}
+            disabled={isProcessing}
+          >
+            취소 요청
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={styles.root}>
       <div className={styles.container}>
@@ -248,7 +374,7 @@ export default function MyPage() {
           {/* Quick Actions */}
           <motion.section
             className={`${styles.card} ${styles.appear}`}
-            style={{ gridColumn: "span 12" }}
+            style={{ gridColumn: "span 12", position: 'relative', zIndex: 2 }}
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.12 }}
@@ -260,7 +386,45 @@ export default function MyPage() {
               <button className={styles.quickBtn} type="button">새 성찰 시작</button>
               <button className={styles.quickBtn} type="button">가치 재정비</button>
               <button className={styles.quickBtn} type="button">아카이브 보기</button>
-              <button className={`${styles.quickBtn} ${styles.cancelBtn}`} type="button" onClick={cancelSubscription} data-testid="cancel-subscription-btn">구독 취소</button>
+              {canCancel && transactionKeyForCancel && (
+                <button
+                  className={`${styles.quickBtn} ${styles.cancelBtn}`}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("버튼 클릭 이벤트 발생!");
+                    openCancelConfirm();
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("버튼 마우스다운 이벤트 발생!");
+                  }}
+                  style={{ position: 'relative', zIndex: 100, pointerEvents: 'auto' }}
+                  data-testid="cancel-subscription-btn"
+                  disabled={isProcessing || isStatusLoading}
+                >
+                  구독 취소
+                </button>
+              )}
+              {canSubscribe && (
+                <button
+                  className={styles.quickBtn}
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await subscribe("구독 결제", 10000);
+                    } catch (error) {
+                      console.error("구독하기 처리 중 오류:", error);
+                    }
+                  }}
+                  disabled={isSubscribeProcessing || isStatusLoading}
+                  data-testid="subscribe-btn"
+                >
+                  Free 구독하기
+                </button>
+              )}
             </div>
           </motion.section>
         </div>

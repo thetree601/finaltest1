@@ -116,8 +116,8 @@
 }
 
 .cancelButton {
-  width: 100%;
-  padding: 0.75rem 2rem;
+  width: auto;
+  padding: 0.6rem 1.2rem; /* 구독하기와 유사한 볼륨으로 축소 */
   border-radius: 8px;
   border: 1px solid rgba(248, 113, 113, 0.3);
   color: #f87171;

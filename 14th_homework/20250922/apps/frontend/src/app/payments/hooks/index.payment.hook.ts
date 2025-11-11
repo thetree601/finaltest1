@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
+import { useQueryClient } from "@tanstack/react-query";
 // @ts-ignore - 포트원 SDK 타입 정의 문제로 임시 처리
 import * as PortOne from "@portone/browser-sdk/v2";
 import { v4 } from "uuid";
@@ -12,6 +13,7 @@ import { FETCH_USER_LOGGED_IN } from "@/commons/layout/navigation/queries";
 export function usePaymentSubscription() {
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // 토큰을 먼저 초기화하여 첫 렌더에서도 로그인 여부를 정확히 판별
   authManager.initializeToken();
@@ -143,6 +145,17 @@ export function usePaymentSubscription() {
       } catch {
         // localStorage 접근 실패는 무시
       }
+      
+      // payment-status 쿼리를 invalidate하고 refetch하여 최신 상태로 갱신
+      // Supabase에 데이터가 저장될 때까지 약간의 지연을 두고 refetch
+      queryClient.invalidateQueries({ queryKey: ["payment-status"] });
+      queryClient.removeQueries({ queryKey: ["payment-status"] });
+      
+      // Supabase 저장 완료를 기다리기 위해 약간의 지연 후 refetch
+      setTimeout(async () => {
+        await queryClient.refetchQueries({ queryKey: ["payment-status"] });
+      }, 1000);
+      
       alert("구독에 성공하였습니다.");
       router.push("/secrets");
     } catch (error) {

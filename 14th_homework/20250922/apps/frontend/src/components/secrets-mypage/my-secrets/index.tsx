@@ -46,6 +46,7 @@ export default function MySecrets() {
                   src={secret.img}
                   alt={secret.title}
                   fill
+                  unoptimized
                   className={styles.image}
                   sizes="(max-width: 768px) 50vw, 25vw"
                 />

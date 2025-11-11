@@ -72,6 +72,8 @@
   padding: 20px;
   opacity: 0;
   min-height: 140px;
+  position: relative;
+  z-index: 1;
 }
 
 .cardHeader {
@@ -223,15 +225,83 @@
   background: rgba(255, 215, 0, 0.08);
   color: #efdca8;
   cursor: pointer;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 
 .cancelBtn {
   border-color: rgba(255, 86, 86, 0.25);
   background: rgba(255, 86, 86, 0.08);
   color: #ff9b9b;
+  /* '구독하기' 버튼과 비슷한 시각적 크기로 축소 */
+  padding: 8px 12px;
+  letter-spacing: 0.2px;
 }
 .cancelBtn:hover {
   background: rgba(255, 86, 86, 0.14);
+}
+
+/* Confirm Modal (match page theme) */
+.modalCard {
+  width: min(420px, 92vw);
+  background: rgba(15, 21, 45, 0.9);
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  border-radius: 16px;
+  padding: 20px;
+  color: #f3e9d1;
+}
+.modalHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.modalTitle {
+  font-size: 18px;
+  letter-spacing: 0.2px;
+  color: #f3e9d1;
+}
+.modalDesc {
+  font-size: 13px;
+  color: #ddcfb9;
+}
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.modalButton {
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.modalButtonGhost {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.16);
+  color: #e9e1d4;
+}
+.modalButtonPrimary {
+  background: linear-gradient(90deg, #b08b2e, #d4af37);
+  border: 1px solid rgba(255, 215, 0, 0.28);
+  color: #0b132b;
+  font-weight: 600;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: #f3e9d1;
+  outline: none;
+}
+.modalInput::placeholder {
+  color: #cbbf9b;
+  opacity: 0.7;
 }
 
 .nextBox {
@@ -265,12 +335,17 @@
   border-radius: 999px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(8px);
+  z-index: 5;
+  /* 네비가 화면을 덮어도 뒤 요소 클릭을 막지 않도록 */
+  pointer-events: none;
 }
 
 .navList {
   display: flex;
   gap: 2px;
   padding: 8px;
+  /* 네비 내부 요소에는 다시 클릭 가능하도록 복원 */
+  pointer-events: auto;
 }
 
 .navItem {
