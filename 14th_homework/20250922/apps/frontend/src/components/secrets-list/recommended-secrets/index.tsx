@@ -29,7 +29,7 @@ export default function RecommendedSecrets({ secrets }: RecommendedSecretsProps)
 
       <div className={styles.secretsGrid}>
         {secrets.map((secret) => (
-          <div key={secret.id} className={styles.secretCard}>
+          <Link key={secret.id} href={`/secrets/${secret.id}`} className={styles.secretCard}>
             <div className={styles.imageWrapper}>
               <Image
                 src={secret.img}
@@ -50,7 +50,7 @@ export default function RecommendedSecrets({ secrets }: RecommendedSecretsProps)
               </div>
               <div className={styles.hoverText}>🔍 더 알아보기</div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </section>

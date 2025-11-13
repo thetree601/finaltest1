@@ -10,7 +10,8 @@ import { FETCH_USER_LOGGED_IN } from "@/commons/layout/navigation/queries";
 import HotSecrets from "./hot-secrets";
 import SaleSecrets from "./sale-secrets";
 import RecommendedSecrets from "./recommended-secrets";
-import { hotSecrets, saleSecrets, recommendedSecrets } from "./mockData";
+import { fetchHotSecrets, fetchSaleSecrets, fetchRecommendedSecrets } from "./queries";
+import { Secret } from "./types";
 import LoginModal from "./modals/LoginModal";
 import styles from "./styles.module.css";
 
@@ -19,10 +20,38 @@ export default function SecretsListPage() {
   const { openModal, closeModal } = useModal();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const hasOpenedModalRef = useRef(false);
+  
+  // Supabase 데이터 상태
+  const [hotSecrets, setHotSecrets] = useState<Secret[]>([]);
+  const [saleSecrets, setSaleSecrets] = useState<Secret[]>([]);
+  const [recommendedSecrets, setRecommendedSecrets] = useState<Secret[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     authManager.initializeToken();
     setIsLoggedIn(authManager.isLoggedIn());
+  }, []);
+
+  // Supabase에서 데이터 가져오기
+  useEffect(() => {
+    async function loadSecrets() {
+      try {
+        setLoading(true);
+        const [hot, sale, recommended] = await Promise.all([
+          fetchHotSecrets(),
+          fetchSaleSecrets(),
+          fetchRecommendedSecrets(),
+        ]);
+        setHotSecrets(hot);
+        setSaleSecrets(sale);
+        setRecommendedSecrets(recommended);
+      } catch (error) {
+        console.error('Failed to load secrets:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadSecrets();
   }, []);
 
   const [shouldSkipQuery, setShouldSkipQuery] = useState(!authManager.isLoggedIn());
@@ -111,6 +140,14 @@ export default function SecretsListPage() {
     setIsLoggedIn(false);
     window.location.reload();
   };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

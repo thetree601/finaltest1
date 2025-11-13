@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Secret } from "../types";
 import styles from "./styles.module.css";
 
@@ -41,7 +42,7 @@ export default function HotSecrets({ secrets }: HotSecretsProps) {
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {secrets.map((secret) => (
-            <div key={secret.id} className={styles.secretCard}>
+            <Link key={secret.id} href={`/secrets/${secret.id}`} className={styles.secretCard}>
               <div className={styles.imageWrapper}>
                 <Image
                   src={secret.img}
@@ -59,7 +60,7 @@ export default function HotSecrets({ secrets }: HotSecretsProps) {
                   </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
