@@ -7,6 +7,7 @@ import Search from "../search";
 import LoadingComponent from "../loading";
 import ErrorComponent from "../error";
 import { DeleteBoardDocument, FETCH_BOARDS_DOCUMENT, FETCH_BOARDS_COUNT_DOCUMENT } from "../queries";
+import styles from "./styles.module.css";
 
 interface BoardsListContainerProps {
   initialPage?: number;
@@ -46,29 +47,60 @@ export default function BoardsListContainer({
 
   // 게시글 삭제 mutation
   const [deleteBoard] = useMutation(DeleteBoardDocument, {
-    refetchQueries: [
-      { 
-        query: FETCH_BOARDS_DOCUMENT, 
-        variables: { 
-          page: currentPage, 
-          search: searchKeyword, 
-          startDate: initialStartDate, 
-          endDate: initialEndDate 
-        } 
-      },
-      { 
-        query: FETCH_BOARDS_COUNT_DOCUMENT, 
-        variables: { 
-          search: searchKeyword, 
-          startDate: initialStartDate, 
-          endDate: initialEndDate 
-        } 
+    update: (cache, { data }) => {
+      if (!data?.deleteBoard) return;
+      
+      const deletedBoardId = data.deleteBoard;
+      
+      // 1. 게시글 목록 캐시 업데이트
+      try {
+        cache.updateQuery(
+          {
+            query: FETCH_BOARDS_DOCUMENT,
+            variables: {
+              page: currentPage,
+              search: searchKeyword,
+              startDate: initialStartDate,
+              endDate: initialEndDate,
+            },
+          },
+          (existingData) => {
+            if (!existingData?.fetchBoards) return existingData;
+            return {
+              ...existingData,
+              fetchBoards: existingData.fetchBoards.filter(
+                (board: { _id: string }) => board._id !== deletedBoardId
+              ),
+            };
+          }
+        );
+      } catch (error) {
+        console.error("게시글 목록 캐시 업데이트 실패:", error);
       }
-    ],
-    onCompleted: () => {
-      // 삭제 후 목록 새로고침
-      refetch();
-    }
+      
+      // 2. 게시글 개수 캐시 업데이트
+      try {
+        cache.updateQuery(
+          {
+            query: FETCH_BOARDS_COUNT_DOCUMENT,
+            variables: {
+              search: searchKeyword,
+              startDate: initialStartDate,
+              endDate: initialEndDate,
+            },
+          },
+          (existingData) => {
+            if (!existingData?.fetchBoardsCount) return existingData;
+            return {
+              ...existingData,
+              fetchBoardsCount: Math.max(0, existingData.fetchBoardsCount - 1),
+            };
+          }
+        );
+      } catch (error) {
+        console.error("게시글 개수 캐시 업데이트 실패:", error);
+      }
+    },
   });
 
   const onClickRow = (boardId: string) => { 
@@ -103,7 +135,7 @@ export default function BoardsListContainer({
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className={styles.container}>
       <Search onSearch={handleSearch} onReset={handleReset} />
       <BoardsList 
         boards={boards} 

@@ -43,7 +43,7 @@ const secretsFormSchema = z.object({
 interface SecretsFormProps {
   mode: "create" | "edit";
   initialData?: Partial<SecretsFormData>;
-  existingImageUrl?: string | null; // 기존 이미지 URL 추가
+  existingImageUrl?: string | null | string[]; // 기존 이미지 URL 배열 추가
   onSubmit: (data: SecretsFormData) => void;
   onCancel: () => void;
 }
@@ -56,9 +56,11 @@ export default function SecretsForm({
   onCancel,
 }: SecretsFormProps) {
   const { openModal, closeModal } = useModal();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(
-    propExistingImageUrl || null
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>(
+    Array.isArray(propExistingImageUrl) 
+      ? propExistingImageUrl 
+      : (propExistingImageUrl ? [propExistingImageUrl] : [])
   );
   const [isPostcodeModalOpen, setIsPostcodeModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -90,42 +92,34 @@ export default function SecretsForm({
 
   const watchedImage = watch("image");
 
-  // watch 값 변화 감지 (디버깅용)
-  useEffect(() => {
-    console.log("watch('image') 값 변화:", watchedImage);
-    console.log("watchedImage 타입:", typeof watchedImage);
-    console.log("watchedImage length:", watchedImage?.length);
-    if (watchedImage && watchedImage.length > 0) {
-      console.log("watchedImage[0]:", watchedImage[0]);
-    }
-  }, [watchedImage]);
-
   // 파일 선택 핸들러 (Controller의 onChange에서 호출됨)
   const handleFileChange = (files: FileList | null) => {
-    console.log("handleFileChange 호출됨, files:", files); // 디버깅용
-    
     if (files && files.length > 0) {
-      const file = files[0];
-      console.log("파일 정보:", file.name, file.type, file.size); // 디버깅용
+      // 현재 이미지 개수 확인
+      const currentCount = existingImageUrls.length + previewUrls.length;
+      const maxAllowed = 3 - currentCount;
       
-      // 즉시 미리보기 URL 생성
-      const objectUrl = URL.createObjectURL(file);
-      console.log("미리보기 URL 생성:", objectUrl); // 디버깅용
-      setPreviewUrl((prevUrl) => {
-        if (prevUrl) {
-          URL.revokeObjectURL(prevUrl);
-        }
-        console.log("previewUrl 설정됨:", objectUrl); // 디버깅용
-        return objectUrl;
+      // 최대 3개까지만 처리
+      const fileArray = Array.from(files).slice(0, maxAllowed);
+      
+      if (files.length > maxAllowed) {
+        alert(`이미지는 최대 3장까지 업로드 가능합니다. (현재 ${currentCount}장, 추가 가능 ${maxAllowed}장)`);
+      }
+      
+      // 모든 파일에 대해 미리보기 URL 생성
+      const newUrls = fileArray.map(file => URL.createObjectURL(file));
+      
+      // 기존 미리보기 URL은 유지하고 새 URL 추가
+      setPreviewUrls((prevUrls) => {
+        // 기존 URL은 유지 (기존 이미지와 병합)
+        return [...prevUrls, ...newUrls];
       });
-      setExistingImageUrl(null);
+      // existingImageUrls는 그대로 유지
     } else {
-      // 파일이 없으면 미리보기 제거
-      setPreviewUrl((prevUrl) => {
-        if (prevUrl) {
-          URL.revokeObjectURL(prevUrl);
-        }
-        return null;
+      // 파일이 없으면 새 미리보기만 제거 (기존 이미지는 유지)
+      setPreviewUrls((prevUrls) => {
+        prevUrls.forEach(url => URL.revokeObjectURL(url));
+        return [];
       });
     }
   };
@@ -139,30 +133,57 @@ export default function SecretsForm({
 
   // 수정 모드일 때 기존 이미지 URL 설정
   useEffect(() => {
-    if (mode === "edit" && propExistingImageUrl) {
-      setExistingImageUrl(propExistingImageUrl);
+    if (mode === "edit") {
+      const existingUrls = Array.isArray(propExistingImageUrl) 
+        ? propExistingImageUrl 
+        : (propExistingImageUrl ? [propExistingImageUrl] : []);
+      setExistingImageUrls(existingUrls);
     }
   }, [mode, propExistingImageUrl]);
 
   // 컴포넌트 언마운트 시 메모리 정리만 수행
   useEffect(() => {
     return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
     };
   }, []);
 
-  // 이미지 제거 핸들러
-  const handleRemoveImage = () => {
-    setPreviewUrl((prevUrl) => {
-      if (prevUrl) {
-        URL.revokeObjectURL(prevUrl);
+  // 이미지 제거 핸들러 (특정 인덱스의 이미지 제거)
+  const handleRemoveImage = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      // 기존 이미지 제거
+      setExistingImageUrls((prevUrls) => {
+        const newUrls = [...prevUrls];
+        newUrls.splice(index, 1);
+        return newUrls;
+      });
+    } else {
+      // 새로 선택한 이미지 제거
+      setPreviewUrls((prevUrls) => {
+        const newUrls = [...prevUrls];
+        URL.revokeObjectURL(newUrls[index]);
+        newUrls.splice(index, 1);
+        return newUrls;
+      });
+    }
+    
+    // 모든 이미지가 제거된 경우
+    const remainingPreview = isExisting ? previewUrls : previewUrls.filter((_, i) => i !== index);
+    const remainingExisting = isExisting ? existingImageUrls.filter((_, i) => i !== index) : existingImageUrls;
+    
+    if (remainingPreview.length === 0 && remainingExisting.length === 0) {
+      setValue("image", null, { shouldValidate: false });
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
-      return null;
-    });
-    setExistingImageUrl(null);
-    // Controller를 통해 값 제거
+    }
+  };
+  
+  // 모든 이미지 제거 핸들러
+  const handleRemoveAllImages = () => {
+    previewUrls.forEach(url => URL.revokeObjectURL(url));
+    setPreviewUrls([]);
+    setExistingImageUrls([]);
     setValue("image", null, { shouldValidate: false });
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -192,56 +213,33 @@ export default function SecretsForm({
   };
 
   const handleFormSubmit = (data: SecretsFormData) => {
-    // 디버깅: 폼 제출 시점의 데이터 확인
-    console.log('=== handleFormSubmit 시작 ===');
-    console.log('handleFormSubmit 호출됨, data:', data);
-    console.log('data.image:', data.image);
-    console.log('data.image 타입:', typeof data.image);
-    console.log('data.image instanceof FileList:', data.image instanceof FileList);
-    console.log('data.image length:', data.image?.length);
-    
-    // watch 값도 확인 (Controller가 저장한 값)
-    const currentImageValue = watch("image");
-    console.log('watch("image") 현재 값:', currentImageValue);
-    console.log('watch("image") 타입:', typeof currentImageValue);
-    console.log('watch("image") instanceof FileList:', currentImageValue instanceof FileList);
-    console.log('watch("image") length:', currentImageValue?.length);
-    
     // 빈 FileList를 null로 변환 (수정 모드에서 이미지를 선택하지 않은 경우 처리)
     let processedData = { ...data };
     
+    // watch 값도 확인 (Controller가 저장한 값)
+    const currentImageValue = watch("image");
+    
     // 중요: data.image가 없거나 비어있으면 watch 값 확인
     if ((!data.image || (data.image instanceof FileList && data.image.length === 0)) && currentImageValue) {
-      console.log('data.image가 비어있어서 watch 값 사용:', currentImageValue);
       processedData.image = currentImageValue;
     }
     
     // 🔥 중요: 수정 모드에서 이미지를 선택하지 않았고 기존 이미지가 있으면 undefined로 설정
     // (undefined면 updateSecret에서 기존 이미지를 유지함)
+    const hasExistingImages = Array.isArray(propExistingImageUrl) 
+      ? propExistingImageUrl.length > 0
+      : !!propExistingImageUrl;
+      
     if (mode === "edit" && 
         (!processedData.image || (processedData.image instanceof FileList && processedData.image.length === 0)) &&
         (currentImageValue === null || currentImageValue === undefined) &&
-        propExistingImageUrl) {
-      console.log('✅ 수정 모드: 이미지 변경 없음, 기존 이미지 유지 (undefined 설정)');
+        hasExistingImages) {
       processedData.image = undefined; // undefined = 변경 없음
     } else if (processedData.image && processedData.image instanceof FileList && processedData.image.length === 0) {
       // 빈 FileList를 null로 변환 (명시적으로 이미지를 제거한 경우)
       processedData.image = null;
-      console.log('빈 FileList를 null로 변환 (이미지 제거)');
     }
     
-    if (processedData.image && processedData.image.length > 0) {
-      console.log('✅ 첫 번째 파일:', processedData.image[0]);
-      console.log('✅ 파일명:', processedData.image[0].name);
-      console.log('✅ 파일 크기:', processedData.image[0].size);
-    } else {
-      console.warn('⚠️ 경고: processedData.image가 없거나 비어있습니다!');
-      console.warn('⚠️ processedData.image:', processedData.image);
-    }
-    
-    console.log('=== handleFormSubmit 끝 ===');
-    
-    // 로그인 체크 제거 - 누구나 등록 가능
     onSubmit(processedData);
   };
 
@@ -384,84 +382,92 @@ export default function SecretsForm({
             </div>
 
             <div className={styles.fieldGroupFull}>
-              <label className={styles.label}>사진 첨부</label>
-              <div
-                className={styles.uploadBox}
-                role="button"
-                onClick={handleImageClick}
-                data-testid="form-image-upload-box"
-                style={{
-                  backgroundImage: previewUrl || existingImageUrl 
-                    ? `url(${previewUrl || existingImageUrl})` 
-                    : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              >
-                {previewUrl || existingImageUrl ? (
-                  <>
-                    <div className={styles.imageOverlay} />
+              <label className={styles.label}>사진 첨부 (최대 3장)</label>
+              <div className={styles.imagePreviewContainer}>
+                {/* 기존 이미지 미리보기 */}
+                {existingImageUrls.map((url, idx) => (
+                  <div key={`existing-${idx}`} className={styles.imagePreview}>
+                    <img src={url} alt={`기존 이미지 ${idx + 1}`} className={styles.previewImage} />
                     <button
                       type="button"
                       className={styles.removeImageButton}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveImage();
-                      }}
-                      data-testid="form-image-remove"
+                      onClick={() => handleRemoveImage(idx, true)}
+                      data-testid={`form-image-remove-existing-${idx}`}
                     >
                       ✕
                     </button>
-                    <span className={styles.changeImageText}>클릭해서 이미지 변경</span>
-                  </>
-                ) : (
-                  <span>클릭해서 사진 업로드</span>
+                  </div>
+                ))}
+                
+                {/* 새로 선택한 이미지 미리보기 */}
+                {previewUrls.map((url, idx) => (
+                  <div key={`preview-${idx}`} className={styles.imagePreview}>
+                    <img src={url} alt={`미리보기 ${idx + 1}`} className={styles.previewImage} />
+                    <button
+                      type="button"
+                      className={styles.removeImageButton}
+                      onClick={() => handleRemoveImage(idx, false)}
+                      data-testid={`form-image-remove-preview-${idx}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                
+                {/* 이미지 업로드 박스 (3개 미만일 때만 표시) */}
+                {(existingImageUrls.length + previewUrls.length) < 3 && (
+                  <div
+                    className={styles.uploadBox}
+                    role="button"
+                    onClick={handleImageClick}
+                    data-testid="form-image-upload-box"
+                  >
+                    <span>클릭해서 사진 업로드 ({(existingImageUrls.length + previewUrls.length)}/3)</span>
+                    <Controller
+                      name="image"
+                      control={control}
+                      render={({ field }) => {
+                        return (
+                          <input
+                            ref={(e) => {
+                              fileInputRef.current = e;
+                              field.ref(e);
+                            }}
+                            onChange={(e) => {
+                              const files = e.target.files;
+                              
+                              if (files && files.length > 0) {
+                                // 최대 3개까지만 처리
+                                const currentCount = existingImageUrls.length + previewUrls.length;
+                                const maxAllowed = 3 - currentCount;
+                                const fileArray = Array.from(files).slice(0, maxAllowed);
+                                
+                                if (files.length > maxAllowed) {
+                                  alert(`이미지는 최대 3장까지 업로드 가능합니다. (현재 ${currentCount}장, 추가 가능 ${maxAllowed}장)`);
+                                }
+                                
+                                // FileList 객체를 그대로 저장
+                                field.onChange(files);
+                                
+                                // 미리보기 업데이트
+                                handleFileChange(files);
+                              } else {
+                                field.onChange(null);
+                                handleFileChange(null);
+                              }
+                            }}
+                            name={field.name}
+                            className={styles.fileInput}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            data-testid="form-image"
+                          />
+                        );
+                      }}
+                    />
+                  </div>
                 )}
-                <Controller
-                  name="image"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <input
-                        ref={(e) => {
-                          fileInputRef.current = e;
-                          field.ref(e);
-                        }}
-                        onChange={(e) => {
-                          const files = e.target.files;
-                          console.log("=== input onChange 시작 ===");
-                          console.log("input onChange 호출됨, files:", files);
-                          console.log("files 타입:", typeof files);
-                          console.log("files length:", files?.length);
-                          
-                          if (files && files.length > 0) {
-                            const file = files[0];
-                            console.log("첫 번째 파일:", file);
-                            console.log("파일명:", file.name);
-                            console.log("파일 크기:", file.size);
-                            
-                            // FileList 객체를 그대로 저장
-                            console.log("field.onChange 호출 전");
-                            field.onChange(files);
-                            console.log("field.onChange 호출 후");
-                            
-                            // 미리보기 업데이트
-                            handleFileChange(files);
-                          } else {
-                            field.onChange(null);
-                            handleFileChange(null);
-                          }
-                          console.log("=== input onChange 끝 ===");
-                        }}
-                        name={field.name}
-                        className={styles.fileInput}
-                        type="file"
-                        accept="image/*"
-                        data-testid="form-image"
-                      />
-                    );
-                  }}
-                />
               </div>
             </div>
           </div>

@@ -102,36 +102,32 @@ export async function uploadImageToSupabase(file: File): Promise<{ success: bool
 // 비밀 등록 함수
 export async function createSecret(formData: SecretsFormData): Promise<{ success: boolean; id?: string; error?: string }> {
 	try {
-		console.log('createSecret 호출됨, formData:', formData);
-		console.log('formData.image:', formData.image);
-		console.log('formData.image 타입:', typeof formData.image);
-		console.log('formData.image length:', formData.image?.length);
-		
-		// 이미지 업로드
-		let imageUrl: string | null = null;
+		// 이미지 업로드 (최대 3개)
+		let imageUrls: string[] = [];
 		if (formData.image && formData.image.length > 0) {
-			const file = formData.image[0];
-			console.log('이미지 업로드 시작:', file.name, file.size, file.type);
-			console.log('File 객체 확인:', file instanceof File);
+			// FileList를 배열로 변환하고 최대 3개까지만 처리
+			const filesToUpload = Array.from(formData.image).slice(0, 3);
 			
-			const uploadResult = await uploadImageToSupabase(file);
-			console.log('이미지 업로드 결과:', uploadResult);
+			// 모든 파일에 대한 업로드 Promise 생성
+			const uploadPromises = filesToUpload.map(file => 
+				uploadImageToSupabase(file)
+			);
 			
-			if (!uploadResult.success) {
-				// 이미지 업로드 실패 시 에러 반환
-				console.error('이미지 업로드 실패:', uploadResult.error);
+			// Promise.all을 사용하여 동시에 업로드
+			const results = await Promise.all(uploadPromises);
+			
+			// 성공한 이미지 URL만 수집
+			imageUrls = results
+				.filter(result => result.success && result.url)
+				.map(result => result.url!);
+			
+			// 모든 이미지 업로드 실패 시 에러 반환
+			if (imageUrls.length === 0 && filesToUpload.length > 0) {
 				return { 
 					success: false, 
-					error: uploadResult.error || '이미지 업로드에 실패했습니다.' 
+					error: '이미지 업로드에 실패했습니다.' 
 				};
 			}
-			
-			if (uploadResult.url) {
-				imageUrl = uploadResult.url;
-				console.log('최종 imageUrl:', imageUrl);
-			}
-		} else {
-			console.log('이미지가 선택되지 않았습니다. formData.image:', formData.image);
 		}
 
 		// 태그 변환 (쉼표로 구분된 문자열 → 배열)
@@ -151,7 +147,7 @@ export async function createSecret(formData: SecretsFormData): Promise<{ success
 			description: null, // nullable이므로 null로 저장
 			intro: formData.intro,
 			price: price,
-			img: imageUrl, // 이미지 URL 또는 null
+			img: imageUrls.length > 0 ? imageUrls : null, // JSONB 배열로 저장
 			category: 'recommended', // 기본값 'recommended'
 			tags: tagsArray,
 			address: formData.address || null,
@@ -160,9 +156,6 @@ export async function createSecret(formData: SecretsFormData): Promise<{ success
 			latitude: latitude,
 			longitude: longitude,
 		};
-		
-		console.log('Supabase에 삽입할 데이터:', insertData);
-		console.log('img 필드 값:', insertData.img);
 		
 		const { data, error } = await supabase
 			.from('secrets')
@@ -186,7 +179,7 @@ export async function createSecret(formData: SecretsFormData): Promise<{ success
 export async function updateSecret(
 	secretId: string,
 	formData: SecretsFormData,
-	existingImageUrl?: string | null // 기존 이미지 URL 전달받기
+	existingImageUrl?: string | null | string[] // 기존 이미지 URL 배열 전달받기
 ): Promise<{ success: boolean; id?: string; error?: string }> {
 	try {
 		// 1. 기존 데이터 조회 (수정하지 않은 필드 유지하기 위해)
@@ -201,47 +194,87 @@ export async function updateSecret(
 		}
 
 		// 2. 이미지 처리
-		console.log('updateSecret - 이미지 처리 시작');
-		console.log('formData.image:', formData.image);
-		console.log('formData.image 타입:', typeof formData.image);
-		console.log('formData.image instanceof FileList:', formData.image instanceof FileList);
-		if (formData.image instanceof FileList) {
-			console.log('formData.image.length:', formData.image.length);
+		// 기존 이미지 배열 처리 (호환성 유지)
+		// existingImageUrl 파싱
+		let existingImages: string[] = [];
+		if (existingImageUrl === null || existingImageUrl === undefined) {
+			existingImages = [];
+		} else if (Array.isArray(existingImageUrl)) {
+			existingImages = existingImageUrl;
+		} else if (typeof existingImageUrl === 'string') {
+			try {
+				const parsed = JSON.parse(existingImageUrl);
+				existingImages = Array.isArray(parsed) ? parsed : [existingImageUrl];
+			} catch {
+				existingImages = [existingImageUrl];
+			}
 		}
-		console.log('existingImageUrl:', existingImageUrl);
 		
-		let imageUrl: string | null | undefined = undefined; // undefined = 변경 없음
+		// 데이터베이스에서 가져온 기존 이미지도 확인 및 파싱
+		let dbImages: string[] = [];
+		if (existingData.img === null || existingData.img === undefined) {
+			dbImages = [];
+		} else if (Array.isArray(existingData.img)) {
+			dbImages = existingData.img;
+		} else if (typeof existingData.img === 'string') {
+			try {
+				const parsed = JSON.parse(existingData.img);
+				dbImages = Array.isArray(parsed) ? parsed : [existingData.img];
+			} catch {
+				dbImages = [existingData.img];
+			}
+		}
+		
+		// existingImageUrl이 없으면 DB에서 가져온 값 사용
+		const currentImages = existingImages.length > 0 ? existingImages : dbImages;
+		
+		let imageUrls: string[] | null | undefined = undefined; // undefined = 변경 없음
 		
 		// formData.image가 FileList인 경우 length 체크
 		const hasNewImage = formData.image && 
 			(formData.image instanceof FileList ? formData.image.length > 0 : false);
 		
-		console.log('hasNewImage:', hasNewImage);
-		
 		if (hasNewImage && formData.image instanceof FileList) {
-			// 새 이미지 업로드
-			console.log('새 이미지 업로드 시작');
-			const uploadResult = await uploadImageToSupabase(formData.image[0]);
-			if (!uploadResult.success) {
-				return { 
-					success: false, 
-					error: uploadResult.error || '이미지 업로드에 실패했습니다.' 
-				};
-			}
-			if (uploadResult.url) {
-				imageUrl = uploadResult.url; // 새 이미지로 교체
-				console.log('새 이미지 URL 설정:', imageUrl);
+			// 현재 이미지 개수 확인
+			const currentImageCount = currentImages.length;
+			const maxAllowed = 3 - currentImageCount;
+			
+			// 새 이미지 업로드 (남은 공간만큼만)
+			const filesToUpload = Array.from(formData.image).slice(0, maxAllowed);
+			
+			if (filesToUpload.length === 0) {
+				imageUrls = currentImages.length > 0 ? currentImages : null;
+			} else {
+				// 모든 파일에 대한 업로드 Promise 생성
+				const uploadPromises = filesToUpload.map(file => 
+					uploadImageToSupabase(file)
+				);
+				
+				// Promise.all을 사용하여 동시에 업로드
+				const results = await Promise.all(uploadPromises);
+				
+				// 성공한 이미지 URL만 수집
+				const newImageUrls = results
+					.filter(result => result.success && result.url)
+					.map(result => result.url!);
+				
+				// 모든 이미지 업로드 실패 시 에러 반환
+				if (newImageUrls.length === 0 && filesToUpload.length > 0) {
+					return { 
+						success: false, 
+						error: '이미지 업로드에 실패했습니다.' 
+					};
+				}
+				
+				// 기존 이미지와 새 이미지 병합 (최대 3개)
+				const mergedImages = [...currentImages, ...newImageUrls].slice(0, 3);
+				imageUrls = mergedImages.length > 0 ? mergedImages : null;
 			}
 		} else if (formData.image === null) {
 			// 이미지가 명시적으로 제거된 경우 (사용자가 이미지 제거 버튼 클릭)
-			console.log('이미지 명시적으로 제거됨');
-			imageUrl = null; // 이미지 제거
-		} else {
-			// formData.image가 undefined이거나 빈 FileList이고 기존 이미지가 있으면 imageUrl은 undefined (변경 없음)
-			console.log('이미지 변경 없음 (기존 이미지 유지)');
+			imageUrls = null; // 이미지 제거
 		}
-		
-		console.log('최종 imageUrl:', imageUrl);
+		// formData.image가 undefined이거나 빈 FileList이고 기존 이미지가 있으면 imageUrls은 undefined (변경 없음)
 
 		// 3. 데이터 변환 및 업데이트 객체 생성
 		// 중요: 사용자가 수정한 필드만 업데이트하고, 수정하지 않은 필드는 기존 값 유지
@@ -269,10 +302,10 @@ export async function updateSecret(
 		updateData.longitude = formData.longitude ? parseFloat(formData.longitude) : null;
 
 		// 이미지 처리: 새 이미지가 있으면 업데이트, 제거되었으면 null, 없으면 undefined (변경 없음)
-		if (imageUrl !== undefined) {
-			updateData.img = imageUrl;
+		if (imageUrls !== undefined) {
+			updateData.img = imageUrls;
 		}
-		// imageUrl이 undefined이면 updateData에 포함하지 않음 (기존 이미지 유지)
+		// imageUrls이 undefined이면 updateData에 포함하지 않음 (기존 이미지 유지)
 
 		// 4. Supabase 업데이트
 		// 현재는 권한 체크 없이 모든 사용자가 수정 가능

@@ -1,0 +1,134 @@
+아래의 조건을 모두 적용하여, 아래의 요구사항을 모두 구현할 것.
+구현 결과를 체크리스트로 반환할 것.
+
+==============================================
+
+조건-파일경로) 수정될 파일경로: src/components/boards-write/hook.ts
+조건-파일경로) 참고할 쿼리 파일경로: src/components/boards-list/queries.ts
+
+==============================================
+
+핵심요구사항) 게시글 등록 후 GraphQL 캐시를 직접 업데이트하여 목록에 새 게시글이 반영되도록 할 것.
+
+핵심요구사항) Apollo Client의 useMutation의 update 함수를 사용하여 캐시를 직접 수정할 것.
+
+핵심요구사항) 다음 두 가지 캐시를 모두 업데이트해야 함:
+            - FETCH_BOARDS_DOCUMENT: 첫 페이지 목록의 맨 앞에 새 게시글 추가
+            - FETCH_BOARDS_COUNT_DOCUMENT: 게시글 총 개수에 1 증가
+
+구현방법) 
+1. useMutation의 두 번째 인자로 update 함수를 전달
+2. update 함수는 (cache, { data }) => {} 형태
+3. data.createBoard에서 새로 생성된 게시글 정보를 가져옴
+4. cache.updateQuery를 사용하여 각 쿼리의 캐시를 업데이트
+   - FETCH_BOARDS_DOCUMENT: fetchBoards 배열의 맨 앞에 새 게시글 추가
+   - FETCH_BOARDS_COUNT_DOCUMENT: fetchBoardsCount 값을 1 증가
+
+주의사항) 
+- 새 게시글은 첫 페이지(page: 1)의 기본 검색 조건(search: "", startDate: null, endDate: null)에 추가
+- createBoard 뮤테이션 응답에는 목록에 필요한 모든 필드가 없을 수 있음
+  - 필요한 필드: _id, writer, title, contents, likeCount, dislikeCount, createdAt, updatedAt
+  - 응답에 없는 필드는 기본값으로 설정 (likeCount: 0, dislikeCount: 0, createdAt/updatedAt: 현재 시간)
+- 각 updateQuery는 try-catch로 감싸서 에러 처리
+- 캐시에 해당 쿼리가 없을 경우를 대비한 fallback 처리 필요
+
+예시코드구조:
+```typescript
+import { FETCH_BOARDS_DOCUMENT, FETCH_BOARDS_COUNT_DOCUMENT } from "../boards-list/queries";
+
+const [createBoard] = useMutation(CreateBoardDocument, {
+  update: (cache, { data }) => {
+    if (!data?.createBoard) return;
+    
+    const newBoard = data.createBoard;
+    
+    // 목록에 필요한 필드 구성 (응답에 없는 필드는 기본값 사용)
+    const boardForList = {
+      _id: newBoard._id,
+      writer: newBoard.writer,
+      title: newBoard.title,
+      contents: newBoard.contents,
+      likeCount: 0,
+      dislikeCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    
+    // 1. 게시글 목록 캐시 업데이트 (첫 페이지에 추가)
+    try {
+      cache.updateQuery(
+        {
+          query: FETCH_BOARDS_DOCUMENT,
+          variables: {
+            page: 1,
+            search: "",
+            startDate: null,
+            endDate: null,
+          },
+        },
+        (existingData) => {
+          if (!existingData?.fetchBoards) {
+            return {
+              fetchBoards: [boardForList],
+            };
+          }
+          
+          return {
+            ...existingData,
+            fetchBoards: [boardForList, ...existingData.fetchBoards],
+          };
+        }
+      );
+    } catch (error) {
+      console.error("게시글 목록 캐시 업데이트 실패:", error);
+    }
+    
+    // 2. 게시글 개수 캐시 업데이트
+    try {
+      cache.updateQuery(
+        {
+          query: FETCH_BOARDS_COUNT_DOCUMENT,
+          variables: {
+            search: "",
+            startDate: null,
+            endDate: null,
+          },
+        },
+        (existingData) => {
+          if (!existingData?.fetchBoardsCount) {
+            return {
+              fetchBoardsCount: 1,
+            };
+          }
+          
+          return {
+            ...existingData,
+            fetchBoardsCount: existingData.fetchBoardsCount + 1,
+          };
+        }
+      );
+    } catch (error) {
+      console.error("게시글 개수 캐시 업데이트 실패:", error);
+    }
+  },
+});
+```
+
+추가고려사항)
+- createBoard 뮤테이션 쿼리에 목록에 필요한 필드들을 추가로 요청하는 것을 고려할 수 있음
+  - 현재 응답: _id, writer, title, contents
+  - 추가 필요: likeCount, dislikeCount, createdAt, updatedAt
+  - 이 경우 queries.ts의 CREATE_BOARD 쿼리를 수정해야 함
+
+==============================================
+
+체크리스트:
+- [ ] FETCH_BOARDS_DOCUMENT, FETCH_BOARDS_COUNT_DOCUMENT import 추가
+- [ ] useMutation에 update 함수 추가
+- [ ] 새 게시글 데이터 구성 (기본값 포함)
+- [ ] FETCH_BOARDS_DOCUMENT 캐시 업데이트 구현 (첫 페이지에 추가)
+- [ ] FETCH_BOARDS_COUNT_DOCUMENT 캐시 업데이트 구현
+- [ ] 캐시가 없을 경우 fallback 처리 구현
+- [ ] 에러 처리 (try-catch) 구현
+- [ ] (선택) CREATE_BOARD 쿼리에 필요한 필드 추가
+

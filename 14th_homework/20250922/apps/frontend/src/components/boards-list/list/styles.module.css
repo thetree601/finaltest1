@@ -1,5 +1,5 @@
 /* Container */
-.container { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--color-text-primary); background: var(--color-surface); padding: 0; border-radius: var(--radius-md); box-shadow: 0 1px 2px rgba(0,0,0,0.04); max-width: 64rem; margin: 0 auto; }
+.container { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji"; color: var(--color-text-primary); background: var(--color-surface); padding: 0; border-radius: var(--radius-md); box-shadow: 0 1px 2px rgba(0,0,0,0.04); width: 100%; }
 .inner { display: flex; flex-direction: column; min-height: 500px; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-6); }
 .title { font-size: 30px; font-weight: var(--font-weight-bold); color: #111827; }

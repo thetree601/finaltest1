@@ -13,22 +13,33 @@ export async function fetchHotSecrets(): Promise<Secret[]> {
     return [];
   }
   
-  console.log('✅ Supabase에서 hot secrets 가져옴:', data?.length, '개');
-  
-  // 디버깅: 메인 페이지에서 가져오는 img 값 확인
-  if (data && data.length > 0) {
-    const firstItem = data[0] as SecretRow;
-    console.log('🔍 메인 페이지 첫 번째 아이템 img 값:', firstItem.img);
-    console.log('🔍 메인 페이지 첫 번째 아이템 img 타입:', typeof firstItem.img);
-  }
-  
-  return (data as SecretRow[]).map(item => ({
-    id: item.id,
-    title: item.title,
-    desc: item.desc,
-    price: item.price,
-    img: item.img,
-  }));
+  return (data as SecretRow[]).map(item => {
+    // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
+    let imgArray: string[] | null = null;
+    if (item.img === null || item.img === undefined) {
+      imgArray = null;
+    } else if (Array.isArray(item.img)) {
+      imgArray = item.img;
+    } else if (typeof item.img === 'string') {
+      // JSON 문자열인지 확인하고 파싱
+      try {
+        const parsed = JSON.parse(item.img);
+        imgArray = Array.isArray(parsed) ? parsed : [item.img];
+      } catch {
+        // JSON 파싱 실패 시 단일 문자열로 처리
+        imgArray = [item.img];
+      }
+    }
+    
+    return {
+      id: item.id,
+      title: item.title,
+      desc: item.desc,
+      price: item.price,
+      // 배열인 경우 첫 번째 요소만, null이면 null
+      img: imgArray && imgArray.length > 0 ? imgArray[0] : null,
+    };
+  });
 }
 
 export async function fetchSaleSecrets(): Promise<Secret[]> {
@@ -43,16 +54,34 @@ export async function fetchSaleSecrets(): Promise<Secret[]> {
     return [];
   }
   
-  console.log('✅ Supabase에서 sale secrets 가져옴:', data?.length, '개');
-  
-  return (data as SecretRow[]).map(item => ({
-    id: item.id,
-    title: item.title,
-    desc: item.desc,
-    price: item.price,
-    img: item.img,
-    saleEnds: item.sale_ends || undefined,
-  }));
+  return (data as SecretRow[]).map(item => {
+    // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
+    let imgArray: string[] | null = null;
+    if (item.img === null || item.img === undefined) {
+      imgArray = null;
+    } else if (Array.isArray(item.img)) {
+      imgArray = item.img;
+    } else if (typeof item.img === 'string') {
+      // JSON 문자열인지 확인하고 파싱
+      try {
+        const parsed = JSON.parse(item.img);
+        imgArray = Array.isArray(parsed) ? parsed : [item.img];
+      } catch {
+        // JSON 파싱 실패 시 단일 문자열로 처리
+        imgArray = [item.img];
+      }
+    }
+    
+    return {
+      id: item.id,
+      title: item.title,
+      desc: item.desc,
+      price: item.price,
+      // 배열인 경우 첫 번째 요소만, null이면 null
+      img: imgArray && imgArray.length > 0 ? imgArray[0] : null,
+      saleEnds: item.sale_ends || undefined,
+    };
+  });
 }
 
 export async function fetchRecommendedSecrets(): Promise<Secret[]> {
@@ -67,35 +96,37 @@ export async function fetchRecommendedSecrets(): Promise<Secret[]> {
     return [];
   }
   
-  console.log('✅ Supabase에서 recommended secrets 가져옴:', data?.length, '개');
-  
-  // 디버깅: "그 회사의 비밀" 찾기
-  if (data) {
-    const targetSecret = data.find((item: any) => item.title?.includes('그 회사의 비밀'));
-    if (targetSecret) {
-      console.log('🎯 찾은 비밀:', targetSecret.id);
-      console.log('🖼️ 찾은 비밀의 img 값:', targetSecret.img);
-      console.log('🖼️ 찾은 비밀의 img 타입:', typeof targetSecret.img);
-      console.log('🖼️ 찾은 비밀의 전체 데이터:', JSON.stringify(targetSecret, null, 2));
+  return (data as SecretRow[]).map(item => {
+    // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
+    let imgArray: string[] | null = null;
+    if (item.img === null || item.img === undefined) {
+      imgArray = null;
+    } else if (Array.isArray(item.img)) {
+      imgArray = item.img;
+    } else if (typeof item.img === 'string') {
+      // JSON 문자열인지 확인하고 파싱
+      try {
+        const parsed = JSON.parse(item.img);
+        imgArray = Array.isArray(parsed) ? parsed : [item.img];
+      } catch {
+        // JSON 파싱 실패 시 단일 문자열로 처리
+        imgArray = [item.img];
+      }
     }
-  }
-  
-  return (data as SecretRow[]).map(item => ({
-    id: item.id,
-    title: item.title,
-    desc: item.desc,
-    price: item.price,
-    img: item.img,
-  }));
+    
+    return {
+      id: item.id,
+      title: item.title,
+      desc: item.desc,
+      price: item.price,
+      // 배열인 경우 첫 번째 요소만, null이면 null
+      img: imgArray && imgArray.length > 0 ? imgArray[0] : null,
+    };
+  });
 }
 
 // 상세페이지용: ID로 secret 조회
 export async function fetchSecretById(secretId: string) {
-  console.log('=== fetchSecretById 함수 시작 ===');
-  console.log('🔑 fetchSecretById 호출됨, secretId:', secretId);
-  
-  // 메인 페이지와 동일하게 select('*') 사용
-  // 캐시를 사용하지 않도록 설정하여 항상 최신 데이터를 가져옴
   const { data, error } = await supabase
     .from('secrets')
     .select('*')
@@ -103,22 +134,39 @@ export async function fetchSecretById(secretId: string) {
     .single();
   
   if (error) {
-    console.error('❌ Supabase 쿼리 에러:', error);
+    console.error('Error fetching secret by id:', error);
     return null;
   }
   
   if (!data) {
-    console.error('❌ data가 null입니다');
     return null;
   }
   
   // 타입 캐스팅 없이 직접 data에서 값 가져오기 (메인 페이지와 동일하게)
   const rawData = data as any;
+  
+  // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
+  let imgArray: string[] = [];
+  if (rawData.img === null || rawData.img === undefined) {
+    imgArray = [];
+  } else if (Array.isArray(rawData.img)) {
+    imgArray = rawData.img;
+  } else if (typeof rawData.img === 'string') {
+    // JSON 문자열인지 확인하고 파싱
+    try {
+      const parsed = JSON.parse(rawData.img);
+      imgArray = Array.isArray(parsed) ? parsed : [rawData.img];
+    } catch {
+      // JSON 파싱 실패 시 단일 문자열로 처리
+      imgArray = [rawData.img];
+    }
+  }
+  
   const result = {
     id: rawData.id,
     title: rawData.title,
     description: rawData.description || rawData.desc || '',
-    img: rawData.img, // 데이터베이스 컬럼명 img를 그대로 사용
+    img: imgArray.length > 0 ? imgArray : null,
     tags: rawData.tags || [],
     intro: rawData.intro || '',
     price: rawData.price,

@@ -12,7 +12,7 @@ export type SecretDetailData = {
 	id: string;
 	title: string;
 	description: string;
-	img: string | null; // 데이터베이스 컬럼명 img를 그대로 사용
+	img: string[] | null; // 이미지 배열로 변경
 	tags: string[];
 	intro: string;
 	price: number;

@@ -1,0 +1,103 @@
+아래의 조건을 모두 적용하여, 아래의 요구사항을 모두 구현할 것.
+구현 결과를 체크리스트로 반환할 것.
+
+==============================================
+
+조건-파일경로) 수정될 파일경로: src/components/boards-list/container/index.tsx
+조건-파일경로) 참고할 쿼리 파일경로: src/components/boards-list/queries.ts
+
+==============================================
+
+핵심요구사항) 게시글 삭제 후 refetchQueries를 사용하지 말고, GraphQL 캐시를 직접 업데이트할 것.
+
+핵심요구사항) Apollo Client의 useMutation의 update 함수를 사용하여 캐시를 직접 수정할 것.
+
+핵심요구사항) 다음 두 가지 캐시를 모두 업데이트해야 함:
+            - FETCH_BOARDS_DOCUMENT: 현재 페이지의 게시글 목록에서 삭제된 게시글 제거
+            - FETCH_BOARDS_COUNT_DOCUMENT: 게시글 총 개수에서 1 감소
+
+구현방법) 
+1. useMutation의 두 번째 인자로 update 함수를 전달
+2. update 함수는 (cache, { data }) => {} 형태
+3. data.deleteBoard에서 삭제된 게시글 ID를 가져옴
+4. cache.updateQuery를 사용하여 각 쿼리의 캐시를 업데이트
+   - FETCH_BOARDS_DOCUMENT: fetchBoards 배열에서 삭제된 ID와 일치하는 항목 제거
+   - FETCH_BOARDS_COUNT_DOCUMENT: fetchBoardsCount 값을 1 감소 (최소값 0)
+
+주의사항) 
+- cache.updateQuery의 variables는 현재 컴포넌트의 상태값을 사용해야 함 (currentPage, searchKeyword, initialStartDate, initialEndDate)
+- 각 updateQuery는 try-catch로 감싸서 에러 처리
+- refetchQueries와 onCompleted의 refetch() 호출은 제거해야 함
+
+예시코드구조:
+```typescript
+const [deleteBoard] = useMutation(DeleteBoardDocument, {
+  update: (cache, { data }) => {
+    if (!data?.deleteBoard) return;
+    
+    const deletedBoardId = data.deleteBoard;
+    
+    // 1. 게시글 목록 캐시 업데이트
+    try {
+      cache.updateQuery(
+        {
+          query: FETCH_BOARDS_DOCUMENT,
+          variables: {
+            page: currentPage,
+            search: searchKeyword,
+            startDate: initialStartDate,
+            endDate: initialEndDate,
+          },
+        },
+        (existingData) => {
+          if (!existingData?.fetchBoards) return existingData;
+          return {
+            ...existingData,
+            fetchBoards: existingData.fetchBoards.filter(
+              (board: { _id: string }) => board._id !== deletedBoardId
+            ),
+          };
+        }
+      );
+    } catch (error) {
+      console.error("게시글 목록 캐시 업데이트 실패:", error);
+    }
+    
+    // 2. 게시글 개수 캐시 업데이트
+    try {
+      cache.updateQuery(
+        {
+          query: FETCH_BOARDS_COUNT_DOCUMENT,
+          variables: {
+            search: searchKeyword,
+            startDate: initialStartDate,
+            endDate: initialEndDate,
+          },
+        },
+        (existingData) => {
+          if (!existingData?.fetchBoardsCount) return existingData;
+          return {
+            ...existingData,
+            fetchBoardsCount: Math.max(0, existingData.fetchBoardsCount - 1),
+          };
+        }
+      );
+    } catch (error) {
+      console.error("게시글 개수 캐시 업데이트 실패:", error);
+    }
+  },
+});
+```
+
+==============================================
+
+체크리스트:
+- [ ] refetchQueries 옵션 제거
+- [ ] onCompleted 옵션 제거
+- [ ] update 함수 구현
+- [ ] FETCH_BOARDS_DOCUMENT 캐시 업데이트 구현
+- [ ] FETCH_BOARDS_COUNT_DOCUMENT 캐시 업데이트 구현
+- [ ] 에러 처리 (try-catch) 구현
+- [ ] 삭제된 게시글 ID로 필터링 로직 구현
+- [ ] 게시글 개수 감소 시 최소값 0 보장
+

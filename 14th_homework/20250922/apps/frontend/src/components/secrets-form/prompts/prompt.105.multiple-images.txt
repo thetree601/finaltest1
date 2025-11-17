@@ -1,0 +1,348 @@
+아래의 조건을 모두 적용하여, 아래의 요구사항을 모두 구현할 것.
+구현 결과를 체크리스트로 반환할 것.
+
+==============================================
+
+조건-데이터베이스) Supabase `secrets` 테이블의 `img` 필드는 이미 `jsonb` 타입으로 변경 완료됨
+조건-파일경로) 수정될 파일경로들:
+  - src/components/secrets-list/mutations.ts
+  - src/components/secrets-form/index.tsx
+  - src/components/secrets-list/types.ts
+  - src/components/secrets-list/queries.ts
+  - src/components/secrets-detail/SecretDetail.tsx
+  - src/components/secrets-detail/SecretContent.tsx
+조건-파일경로) 참고할 파일경로: src/components/boards-write/prompts/prompt.102.image-upload-parallel.txt
+
+==============================================
+
+핵심요구사항) 이미지를 최대 3장까지 업로드 가능하게 할 것.
+핵심요구사항) 다중 이미지 업로드 시 Promise.all을 활용하여 모든 이미지를 동시에 업로드하여 속도를 개선할 것.
+핵심요구사항) 메인페이지(/secrets)에서는 대표 사진 1장만 표시할 것 (첫 번째 이미지).
+핵심요구사항) 상세페이지(/secrets/[id])에서는 업로드된 모든 이미지(최대 3장)를 표시할 것.
+핵심요구사항) 기존 UI 구조를 크게 망치지 않는 선에서 다중 이미지 표시를 구현할 것.
+
+==============================================
+
+구현방법)
+
+### 1. 타입 정의 변경 (types.ts)
+- `SecretRow` 인터페이스의 `img` 필드를 `string | null` → `string[] | null`로 변경
+- `Secret` 인터페이스의 `img` 필드는 메인페이지용이므로 `string` 유지 (첫 번째 이미지만 사용)
+- `SecretDetailData` 타입의 `img` 필드를 `string | null` → `string[] | null`로 변경
+
+### 2. 다중 이미지 업로드 구현 (mutations.ts)
+- `createSecret` 함수 수정:
+  - `formData.image`가 FileList인 경우, 최대 3개까지만 처리
+  - 모든 파일에 대해 `uploadImageToSupabase` Promise 생성
+  - `Promise.all`을 사용하여 모든 이미지를 동시에 업로드
+  - 업로드 성공한 이미지 URL들을 배열로 수집
+  - `img` 필드에 JSONB 배열 형식으로 저장: `["url1", "url2", "url3"]`
+  - 일부 이미지 업로드 실패 시에도 성공한 이미지는 저장
+  - 모든 이미지 업로드 실패 시에만 에러 반환
+
+- `updateSecret` 함수 수정:
+  - 기존 이미지 배열과 새 이미지를 병합하는 로직 추가
+  - 새 이미지 업로드 시에도 Promise.all 사용
+  - 이미지 제거 시 배열에서 해당 인덱스 제거
+
+### 3. 폼 UI 개선 (secrets-form/index.tsx)
+- 파일 input에 `multiple` 속성 추가
+- 최대 3개까지만 선택 가능하도록 제한
+- 선택된 이미지들을 모두 미리보기로 표시 (최대 3개)
+- 미리보기 UI:
+  - 여러 이미지를 그리드 형태로 표시 (2x2 또는 1x3)
+  - 각 이미지마다 제거 버튼 제공
+  - 이미지 개수 표시 (예: "1/3", "2/3", "3/3")
+- `handleFileChange` 함수 수정:
+  - FileList에서 최대 3개까지만 처리
+  - 모든 파일에 대해 미리보기 URL 생성
+  - 배열로 관리하여 각 이미지별로 제거 가능하게 함
+
+### 4. 메인페이지 쿼리 수정 (queries.ts)
+- `fetchHotSecrets`, `fetchSaleSecrets`, `fetchRecommendedSecrets` 함수 수정:
+  - `img` 필드가 배열인 경우 첫 번째 요소만 추출
+  - `img` 필드가 문자열인 경우 그대로 사용 (기존 데이터 호환성)
+  - `img` 필드가 null인 경우 null 반환
+
+예시코드:
+```typescript
+img: Array.isArray(item.img) 
+  ? (item.img.length > 0 ? item.img[0] : null)
+  : item.img,
+```
+
+### 5. 상세페이지 쿼리 수정 (queries.ts)
+- `fetchSecretById` 함수 수정:
+  - `img` 필드를 배열로 그대로 반환
+  - JSONB 배열을 JavaScript 배열로 변환
+  - 기존 문자열 형식도 호환성 유지
+
+예시코드:
+```typescript
+img: Array.isArray(rawData.img) 
+  ? rawData.img 
+  : (rawData.img ? [rawData.img] : []),
+```
+
+### 6. 상세페이지 UI 개선 (SecretContent.tsx)
+- `img` prop 타입을 `string | null | undefined` → `string[] | null | undefined`로 변경
+- 다중 이미지 표시 UI 구현:
+  - 첫 번째 이미지는 기존과 동일하게 큰 크기로 표시
+  - 나머지 이미지들은 작은 썸네일로 표시 (2x2 그리드 또는 가로 스크롤)
+  - 또는 이미지 갤러리 형태로 구현 (첫 번째 이미지 위에 작은 썸네일 오버레이)
+  - 클릭 시 이미지 확대/모달 표시 (선택사항)
+- 기존 CSS 구조 최대한 유지하면서 확장
+
+예시 UI 구조:
+```tsx
+{isValidImg && (
+  <div className={styles.imageWrap}>
+    {/* 메인 이미지 */}
+    <img src={img[0]} alt="비밀 이미지" className={styles.mainImage} />
+    
+    {/* 추가 이미지 썸네일 (2장 이상인 경우) */}
+    {img.length > 1 && (
+      <div className={styles.thumbnailGrid}>
+        {img.slice(1).map((url, idx) => (
+          <img key={idx} src={url} alt={`비밀 이미지 ${idx + 2}`} />
+        ))}
+      </div>
+    )}
+  </div>
+)}
+```
+
+### 7. SecretDetail 타입 수정 (SecretDetail.tsx)
+- `SecretDetailData` 타입의 `img` 필드를 `string[] | null`로 변경
+
+==============================================
+
+주의사항)
+- 기존 데이터 호환성: `img` 필드가 문자열인 경우도 처리해야 함
+- JSONB 배열 형식: Supabase에 저장할 때는 JavaScript 배열을 그대로 전달하면 자동으로 JSONB로 변환됨
+- 이미지 개수 제한: 사용자가 3개 이상 선택하려고 하면 경고 메시지 표시
+- 업로드 실패 처리: 일부 이미지만 실패해도 성공한 이미지는 저장
+- 메모리 관리: 미리보기 URL 생성 시 `URL.createObjectURL` 사용 후 정리 필요
+- 에러 메시지: 업로드 실패 시 명확한 에러 메시지 제공
+
+==============================================
+
+예시코드구조:
+
+### mutations.ts - createSecret 함수
+```typescript
+// 이미지 업로드 (최대 3개)
+let imageUrls: string[] = [];
+if (formData.image && formData.image.length > 0) {
+  // 최대 3개까지만 처리
+  const filesToUpload = Array.from(formData.image).slice(0, 3);
+  
+  // 모든 파일에 대한 업로드 Promise 생성
+  const uploadPromises = filesToUpload.map(file => 
+    uploadImageToSupabase(file)
+  );
+  
+  // Promise.all을 사용하여 동시에 업로드
+  const results = await Promise.all(uploadPromises);
+  
+  // 성공한 이미지 URL만 수집
+  imageUrls = results
+    .filter(result => result.success && result.url)
+    .map(result => result.url!);
+  
+  // 모든 이미지 업로드 실패 시 에러 반환
+  if (imageUrls.length === 0 && filesToUpload.length > 0) {
+    return { 
+      success: false, 
+      error: '이미지 업로드에 실패했습니다.' 
+    };
+  }
+}
+
+// Supabase에 데이터 삽입
+const insertData = {
+  // ... 기타 필드
+  img: imageUrls.length > 0 ? imageUrls : null, // JSONB 배열로 저장
+};
+```
+
+### secrets-form/index.tsx - 다중 파일 선택
+```typescript
+const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
+const handleFileChange = (files: FileList | null) => {
+  if (!files || files.length === 0) {
+    setPreviewUrls([]);
+    return;
+  }
+  
+  // 최대 3개까지만 처리
+  const fileArray = Array.from(files).slice(0, 3);
+  
+  if (files.length > 3) {
+    alert('이미지는 최대 3장까지 업로드 가능합니다.');
+  }
+  
+  // 모든 파일에 대해 미리보기 URL 생성
+  const urls = fileArray.map(file => URL.createObjectURL(file));
+  setPreviewUrls(urls);
+  
+  // FileList를 그대로 저장 (최대 3개)
+  setValue("image", fileArray.length > 0 ? 
+    Object.assign([], fileArray) as any : null
+  );
+};
+```
+
+### queries.ts - 메인페이지용
+```typescript
+return (data as SecretRow[]).map(item => ({
+  id: item.id,
+  title: item.title,
+  desc: item.desc,
+  price: item.price,
+  // 배열인 경우 첫 번째 요소만, 문자열이면 그대로, null이면 null
+  img: Array.isArray(item.img) 
+    ? (item.img.length > 0 ? item.img[0] : null)
+    : item.img,
+}));
+```
+
+### queries.ts - 상세페이지용
+```typescript
+const result = {
+  // ... 기타 필드
+  // 배열이면 그대로, 문자열이면 배열로 변환, null이면 빈 배열
+  img: Array.isArray(rawData.img) 
+    ? rawData.img 
+    : (rawData.img ? [rawData.img] : []),
+};
+```
+
+### SecretContent.tsx - 다중 이미지 표시
+```typescript
+export default function SecretContent({
+  img,
+  intro,
+}: {
+  img: string[] | null | undefined;
+  intro: string;
+}) {
+  const imageArray = Array.isArray(img) ? img : (img ? [img] : []);
+  const isValidImg = imageArray.length > 0;
+  
+  return (
+    <section className={styles.content}>
+      {isValidImg && (
+        <div className={styles.imageWrap}>
+          {/* 메인 이미지 */}
+          <img 
+            src={imageArray[0]} 
+            alt="비밀 이미지" 
+            className={styles.mainImage}
+          />
+          
+          {/* 추가 이미지 썸네일 (2장 이상인 경우) */}
+          {imageArray.length > 1 && (
+            <div className={styles.thumbnailGrid}>
+              {imageArray.slice(1).map((url, idx) => (
+                <img 
+                  key={idx} 
+                  src={url} 
+                  alt={`비밀 이미지 ${idx + 2}`}
+                  className={styles.thumbnail}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {/* ... intro 내용 */}
+    </section>
+  );
+}
+```
+
+==============================================
+
+추가고려사항)
+- 이미지 업로드 진행 상태 표시 (로딩 인디케이터)
+- 이미지 개수 제한 안내 메시지
+- 이미지 순서 변경 기능 (드래그 앤 드롭, 선택사항)
+- 이미지 확대 보기 기능 (모달, 선택사항)
+- 기존 단일 이미지 데이터와의 호환성 유지
+
+==============================================
+
+체크리스트:
+- [x] types.ts에서 img 필드 타입을 배열로 변경
+- [x] mutations.ts의 createSecret에서 Promise.all을 사용한 병렬 업로드 구현
+- [x] mutations.ts의 updateSecret에서 다중 이미지 처리 로직 추가
+- [x] secrets-form/index.tsx에서 다중 파일 선택 UI 구현 (최대 3개)
+- [x] secrets-form/index.tsx에서 다중 이미지 미리보기 UI 구현
+- [x] queries.ts의 메인페이지 쿼리에서 첫 번째 이미지만 추출하도록 수정
+- [x] queries.ts의 상세페이지 쿼리에서 이미지 배열을 그대로 반환하도록 수정
+- [x] SecretDetail.tsx에서 img 타입을 배열로 변경
+- [x] SecretContent.tsx에서 다중 이미지 표시 UI 구현
+- [x] 기존 단일 이미지 데이터와의 호환성 처리
+- [x] 이미지 개수 제한 (최대 3개) 검증 추가
+- [x] 업로드 실패 시 에러 처리 구현
+- [x] 부분 실패 시 성공한 이미지는 저장되도록 구현
+
+==============================================
+
+문제 원인 및 해결 방법)
+
+### 첫 시도에서 다중 이미지가 표시되지 않았던 원인
+
+**문제 1: Supabase JSONB 데이터가 JSON 문자열로 반환되는 경우**
+- Supabase에서 JSONB 타입의 데이터를 조회할 때, 경우에 따라 JavaScript 배열이 아닌 JSON 문자열로 반환되는 경우가 있음
+- 예: `"[\"url1\", \"url2\"]"` 형태의 문자열로 반환됨
+- 이 경우 `Array.isArray()` 체크가 실패하여 배열로 인식되지 않음
+
+**문제 2: queries.ts에서 JSON 문자열 파싱 로직 누락**
+- 초기 구현에서는 `Array.isArray()` 체크만 수행하고 JSON 문자열 파싱을 하지 않음
+- 결과적으로 문자열로 반환된 데이터가 배열로 변환되지 않아 이미지가 표시되지 않음
+
+### 해결 방법
+
+**1. queries.ts에 JSON 문자열 파싱 로직 추가**
+- 모든 쿼리 함수(`fetchHotSecrets`, `fetchSaleSecrets`, `fetchRecommendedSecrets`, `fetchSecretById`)에 JSON 파싱 로직 추가
+- 처리 순서:
+  1. `null` 또는 `undefined` 체크
+  2. 배열인지 확인 (`Array.isArray()`)
+  3. 문자열인 경우 `JSON.parse()` 시도
+  4. 파싱 실패 시 단일 문자열로 처리
+
+**예시 코드:**
+```typescript
+let imgArray: string[] = [];
+if (rawData.img === null || rawData.img === undefined) {
+  imgArray = [];
+} else if (Array.isArray(rawData.img)) {
+  imgArray = rawData.img;
+} else if (typeof rawData.img === 'string') {
+  try {
+    const parsed = JSON.parse(rawData.img);
+    imgArray = Array.isArray(parsed) ? parsed : [rawData.img];
+  } catch {
+    imgArray = [rawData.img];
+  }
+}
+```
+
+**2. updateSecret 함수에도 동일한 파싱 로직 추가**
+- 수정 모드에서 기존 이미지를 가져올 때도 JSON 문자열일 수 있으므로 파싱 로직 추가
+- `existingImageUrl` prop과 `existingData.img` 모두에 대해 파싱 처리
+
+**3. 기존 데이터 호환성 유지**
+- 단일 문자열 형식의 기존 데이터도 배열로 변환하여 처리
+- `null` 값도 적절히 처리하여 에러 방지
+
+### 최종 해결 결과
+
+- ✅ Supabase에서 JSON 문자열로 반환되는 경우도 정상적으로 파싱
+- ✅ 배열로 반환되는 경우도 정상 처리
+- ✅ 단일 문자열 형식의 기존 데이터도 호환성 유지
+- ✅ 다중 이미지 업로드 및 표시 정상 작동
+

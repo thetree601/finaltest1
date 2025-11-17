@@ -60,22 +60,73 @@ export default function BoardsWrite(props: BoardsWriteProps) {
   // 이미지 업로드 관련 ref
   const fileRefs = useRef([null, null, null]);
   
-  const onChangeFile = async (event, index) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const isValid = checkValidationFile(file);
-    if (!isValid) return;
+  // 다중 파일 업로드 헬퍼 함수
+  const uploadMultipleFiles = async (files: File[], startIndex: number) => {
+    const validFiles = files.filter(file => checkValidationFile(file));
+    if (validFiles.length === 0) return;
 
     try {
-      const result = await uploadFile({ variables: { file } });
+      // 모든 파일에 대한 업로드 Promise 생성
+      const uploadPromises = validFiles.map((file) =>
+        uploadFile({ variables: { file } }).catch((error) => {
+          console.error("이미지 업로드 실패:", error);
+          return { error: true };
+        })
+      );
+
+      // Promise.all을 사용하여 모든 업로드를 동시에 실행
+      const results = await Promise.all(uploadPromises);
       const newImages = [...images];
-      newImages[index] = result.data?.uploadFile.url || "";
+      let hasError = false;
+      
+      // 업로드된 이미지 URL들을 images 배열에 반영 (성공한 것만)
+      results.forEach((result, index) => {
+        const targetIndex = startIndex + index;
+        if (targetIndex < newImages.length) {
+          if (result.error) {
+            hasError = true;
+          } else if (result.data?.uploadFile.url) {
+            newImages[targetIndex] = result.data.uploadFile.url;
+          }
+        }
+      });
+      
       setImages(newImages);
+      
+      // 일부 실패한 경우 알림 표시
+      if (hasError) {
+        alert("일부 이미지 업로드에 실패했습니다.");
+      }
     } catch (e) {
       console.error(e);
-      alert("이미지 업로드에 실패했습니다.");
+      alert("이미지 업로드 중 오류가 발생했습니다.");
     }
+  };
+
+  const onChangeFile = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    // 단일 파일 선택인 경우 기존 로직 유지
+    if (files.length === 1) {
+      const file = files[0];
+      const isValid = checkValidationFile(file);
+      if (!isValid) return;
+
+      try {
+        const result = await uploadFile({ variables: { file } });
+        const newImages = [...images];
+        newImages[index] = result.data?.uploadFile.url || "";
+        setImages(newImages);
+      } catch (e) {
+        console.error(e);
+        alert("이미지 업로드에 실패했습니다.");
+      }
+      return;
+    }
+
+    // 다중 파일 선택인 경우 Promise.all 활용
+    await uploadMultipleFiles(Array.from(files), index);
   };
 
   const onClickImage = (index) => () => {
@@ -239,6 +290,7 @@ export default function BoardsWrite(props: BoardsWriteProps) {
                   <input
                     style={{ display: "none" }}
                     type="file"
+                    multiple
                     onChange={(event) => onChangeFile(event, index)}
                     ref={(el) => (fileRefs.current[index] = el)}
                     accept="image/jpeg,image/png"

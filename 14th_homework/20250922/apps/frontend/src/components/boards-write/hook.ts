@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateBoardDocument, UpdateBoardDocument, FetchBoardForEditDocument } from "@/commons/graphql/graphql";
 import { FETCH_BOARD_DETAIL } from "../boards-detail/detail/queries";
+import { FETCH_BOARDS_DOCUMENT, FETCH_BOARDS_COUNT_DOCUMENT } from "../boards-list/queries";
 import type { BoardsWriteProps, UpdateBoardInput } from "./types";
 import { boardWriteSchema, boardEditSchema, passwordValidationSchema, type BoardWriteFormData, type BoardEditFormData, type PasswordValidationData } from "./schema";
 
@@ -31,7 +32,82 @@ interface ModalState {
 export function useBoardsWrite(props: BoardsWriteProps) {
   const router = useRouter();
 
-  const [createBoard] = useMutation(CreateBoardDocument);
+  const [createBoard] = useMutation(CreateBoardDocument, {
+    update: (cache, { data }) => {
+      if (!data?.createBoard) return;
+      
+      const newBoard = data.createBoard;
+      
+      // 목록에 필요한 필드 구성 (응답에 없는 필드는 기본값 사용)
+      const boardForList = {
+        _id: newBoard._id,
+        writer: newBoard.writer,
+        title: newBoard.title,
+        contents: newBoard.contents,
+        likeCount: 0,
+        dislikeCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      
+      // 1. 게시글 목록 캐시 업데이트 (첫 페이지에 추가)
+      try {
+        cache.updateQuery(
+          {
+            query: FETCH_BOARDS_DOCUMENT,
+            variables: {
+              page: 1,
+              search: "",
+              startDate: null,
+              endDate: null,
+            },
+          },
+          (existingData) => {
+            if (!existingData?.fetchBoards) {
+              return {
+                fetchBoards: [boardForList],
+              };
+            }
+            
+            return {
+              ...existingData,
+              fetchBoards: [boardForList, ...existingData.fetchBoards],
+            };
+          }
+        );
+      } catch (error) {
+        console.error("게시글 목록 캐시 업데이트 실패:", error);
+      }
+      
+      // 2. 게시글 개수 캐시 업데이트
+      try {
+        cache.updateQuery(
+          {
+            query: FETCH_BOARDS_COUNT_DOCUMENT,
+            variables: {
+              search: "",
+              startDate: null,
+              endDate: null,
+            },
+          },
+          (existingData) => {
+            if (!existingData?.fetchBoardsCount) {
+              return {
+                fetchBoardsCount: 1,
+              };
+            }
+            
+            return {
+              ...existingData,
+              fetchBoardsCount: existingData.fetchBoardsCount + 1,
+            };
+          }
+        );
+      } catch (error) {
+        console.error("게시글 개수 캐시 업데이트 실패:", error);
+      }
+    },
+  });
   const [updateBoard] = useMutation(UpdateBoardDocument);
   const [uploadFile] = useMutation(UPLOAD_FILE);
 

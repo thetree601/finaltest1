@@ -8,7 +8,7 @@ import { updateSecret } from "@/components/secrets-list/mutations";
 interface SecretsEditProps {
 	secretId: string;
 	initialData?: Partial<SecretsFormData>;
-	existingImageUrl?: string | null; // 기존 이미지 URL 추가
+	existingImageUrl?: string | null | string[]; // 기존 이미지 URL 배열 추가
 }
 
 export default function SecretsEdit({ secretId, initialData, existingImageUrl }: SecretsEditProps) {

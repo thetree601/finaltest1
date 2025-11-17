@@ -13,7 +13,7 @@ export interface SecretRow {
   title: string;
   desc: string;
   price: number;
-  img: string | null; // nullable로 수정
+  img: string[] | null; // JSONB 배열 타입으로 변경
   sale_ends: string | null;
   category: string;
   created_at: string;
