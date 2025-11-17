@@ -25,31 +25,45 @@ export default function SecretsListPage() {
   const [hotSecrets, setHotSecrets] = useState<Secret[]>([]);
   const [saleSecrets, setSaleSecrets] = useState<Secret[]>([]);
   const [recommendedSecrets, setRecommendedSecrets] = useState<Secret[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingHot, setLoadingHot] = useState(true);
+  const [loadingSale, setLoadingSale] = useState(true);
+  const [loadingRecommended, setLoadingRecommended] = useState(true);
 
   useEffect(() => {
     authManager.initializeToken();
     setIsLoggedIn(authManager.isLoggedIn());
   }, []);
 
-  // Supabase에서 데이터 가져오기
+  // Supabase에서 데이터 가져오기 - 각 섹션을 독립적으로 로딩하여 점진적 렌더링
   useEffect(() => {
     async function loadSecrets() {
+      // Hot Secrets 먼저 로딩 (가장 중요한 섹션)
       try {
-        setLoading(true);
-        const [hot, sale, recommended] = await Promise.all([
-          fetchHotSecrets(),
-          fetchSaleSecrets(),
-          fetchRecommendedSecrets(),
-        ]);
+        const hot = await fetchHotSecrets();
         setHotSecrets(hot);
-        setSaleSecrets(sale);
-        setRecommendedSecrets(recommended);
       } catch (error) {
-        console.error('Failed to load secrets:', error);
+        console.error('Failed to load hot secrets:', error);
       } finally {
-        setLoading(false);
+        setLoadingHot(false);
       }
+
+      // Sale Secrets와 Recommended Secrets는 병렬로 로딩
+      Promise.all([
+        fetchSaleSecrets().then(sale => {
+          setSaleSecrets(sale);
+          setLoadingSale(false);
+        }).catch(error => {
+          console.error('Failed to load sale secrets:', error);
+          setLoadingSale(false);
+        }),
+        fetchRecommendedSecrets().then(recommended => {
+          setRecommendedSecrets(recommended);
+          setLoadingRecommended(false);
+        }).catch(error => {
+          console.error('Failed to load recommended secrets:', error);
+          setLoadingRecommended(false);
+        })
+      ]);
     }
     loadSecrets();
   }, []);
@@ -141,14 +155,6 @@ export default function SecretsListPage() {
     window.location.reload();
   }, []);
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -187,9 +193,23 @@ export default function SecretsListPage() {
         </p>
       </div>
 
-      <HotSecrets secrets={hotSecrets} />
-      <SaleSecrets secrets={saleSecrets} />
-      <RecommendedSecrets secrets={recommendedSecrets} />
+      {loadingHot ? (
+        <div style={{ textAlign: 'center', padding: '2rem' }}>로딩 중...</div>
+      ) : (
+        <HotSecrets secrets={hotSecrets} />
+      )}
+      
+      {loadingSale ? (
+        <div style={{ textAlign: 'center', padding: '1rem' }}>할인 상품 로딩 중...</div>
+      ) : (
+        <SaleSecrets secrets={saleSecrets} />
+      )}
+      
+      {loadingRecommended ? (
+        <div style={{ textAlign: 'center', padding: '1rem' }}>추천 상품 로딩 중...</div>
+      ) : (
+        <RecommendedSecrets secrets={recommendedSecrets} />
+      )}
     </div>
   );
 }

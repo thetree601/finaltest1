@@ -4,12 +4,17 @@ import { Secret, SecretRow } from './types';
 export async function fetchHotSecrets(): Promise<Secret[]> {
   const { data, error } = await supabase
     .from('secrets')
-    .select('*')
+    .select('id, title, desc, price, img, created_at')
     .eq('category', 'hot')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(3);
   
   if (error) {
     console.error('Error fetching hot secrets:', error);
+    return [];
+  }
+  
+  if (!data || data.length === 0) {
     return [];
   }
   
@@ -45,12 +50,17 @@ export async function fetchHotSecrets(): Promise<Secret[]> {
 export async function fetchSaleSecrets(): Promise<Secret[]> {
   const { data, error } = await supabase
     .from('secrets')
-    .select('*')
+    .select('id, title, desc, price, img, sale_ends, created_at')
     .eq('category', 'sale')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(8);
   
   if (error) {
     console.error('Error fetching sale secrets:', error);
+    return [];
+  }
+  
+  if (!data || data.length === 0) {
     return [];
   }
   
@@ -87,12 +97,17 @@ export async function fetchSaleSecrets(): Promise<Secret[]> {
 export async function fetchRecommendedSecrets(): Promise<Secret[]> {
   const { data, error } = await supabase
     .from('secrets')
-    .select('*')
+    .select('id, title, desc, price, img, created_at')
     .eq('category', 'recommended')
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .limit(12);
   
   if (error) {
     console.error('Error fetching recommended secrets:', error);
+    return [];
+  }
+  
+  if (!data || data.length === 0) {
     return [];
   }
   
