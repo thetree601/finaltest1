@@ -55,7 +55,7 @@ interface SecretsFormProps {
   mode: "create" | "edit";
   initialData?: Partial<SecretsFormData>;
   existingImageUrl?: string | null | string[]; // 기존 이미지 URL 배열 추가
-  onSubmit: (data: SecretsFormData) => void;
+  onSubmit: (data: SecretsFormData, existingImageUrls?: string[]) => void;
   onCancel: () => void;
 }
 
@@ -388,9 +388,9 @@ export default function SecretsForm({
   const handleFormSubmit = (data: SecretsFormData) => {
     let processedData = { ...data };
     
-    const hasExistingImages = Array.isArray(propExistingImageUrl) 
-      ? propExistingImageUrl.length > 0
-      : !!propExistingImageUrl;
+    // 수정 모드에서 업데이트된 existingImageUrls state 사용 (기존 이미지 제거 반영)
+    const currentExistingImages = mode === "edit" ? existingImageUrls : [];
+    const hasExistingImages = currentExistingImages.length > 0;
       
     // 수정 모드에서 이미지를 새로 선택하지 않았고, 기존 이미지가 있다면 undefined (변경 없음)
     if (mode === "edit" && 
@@ -402,7 +402,8 @@ export default function SecretsForm({
       processedData.image = null;
     }
     
-    onSubmit(processedData);
+    // 수정 모드에서 업데이트된 existingImageUrls를 함께 전달
+    onSubmit(processedData, mode === "edit" ? existingImageUrls : undefined);
   };
 
   const titleText = mode === "create" ? "비밀 등록하기" : "비밀 수정하기";

@@ -21,7 +21,7 @@ export default function SecretsListPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const hasOpenedModalRef = useRef(false);
   
-  // Supabase 데이터 상태
+  // GraphQL 데이터 상태
   const [hotSecrets, setHotSecrets] = useState<Secret[]>([]);
   const [saleSecrets, setSaleSecrets] = useState<Secret[]>([]);
   const [recommendedSecrets, setRecommendedSecrets] = useState<Secret[]>([]);
@@ -34,7 +34,7 @@ export default function SecretsListPage() {
     setIsLoggedIn(authManager.isLoggedIn());
   }, []);
 
-  // Supabase에서 데이터 가져오기 - 각 섹션을 독립적으로 로딩하여 점진적 렌더링
+  // GraphQL에서 데이터 가져오기 - 각 섹션을 독립적으로 로딩하여 점진적 렌더링
   useEffect(() => {
     async function loadSecrets() {
       // Hot Secrets 먼저 로딩 (가장 중요한 섹션)

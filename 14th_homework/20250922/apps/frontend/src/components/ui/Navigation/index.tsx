@@ -24,7 +24,7 @@ export default function Navigation({
         <nav className="header-nav">
           <Link href="/boards">트립토크</Link>
           <Link href="/secrets">비밀 거래</Link>
-          <Link href="/mypage">마이 페이지</Link>
+          <Link href="/secrets/mypage">마이 페이지</Link>
         </nav>
       </div>
       

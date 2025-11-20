@@ -1,197 +1,139 @@
-import { supabase } from '@/lib/supabase-client';
-import { Secret, SecretRow } from './types';
+import { apolloClient } from '@/lib/apollo-client';
+import { Secret, Travelproduct, mapTravelproductToSecret } from './types';
+import { FETCH_TRAVELPRODUCTS, FETCH_TRAVELPRODUCT } from './queries.graphql';
 
+// GraphQL에서 모든 여행 상품을 가져오는 함수
+async function fetchAllTravelproducts(
+  isSoldout?: boolean,
+  search?: string,
+  page?: number
+): Promise<Travelproduct[]> {
+  try {
+    const { data } = await apolloClient.query({
+      query: FETCH_TRAVELPRODUCTS,
+      variables: {
+        isSoldout,
+        search,
+        page,
+      },
+      fetchPolicy: 'network-only', // 항상 최신 데이터 가져오기
+    });
+
+    return data?.fetchTravelproducts || [];
+  } catch (error) {
+    console.error('Error fetching travelproducts:', error);
+    return [];
+  }
+}
+
+// Hot Secrets: pickedCount가 높은 상위 3개
 export async function fetchHotSecrets(): Promise<Secret[]> {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('id, title, desc, price, img, created_at')
-    .eq('category', 'hot')
-    .order('created_at', { ascending: false })
-    .limit(3);
+  const travelproducts = await fetchAllTravelproducts(false);
   
-  if (error) {
-    console.error('Error fetching hot secrets:', error);
-    return [];
-  }
+  // pickedCount 기준으로 정렬하고 상위 3개 선택
+  const sorted = [...travelproducts]
+    .filter(tp => tp && tp._id) // null 체크 추가
+    .sort((a, b) => (b.pickedCount || 0) - (a.pickedCount || 0))
+    .slice(0, 3);
   
-  if (!data || data.length === 0) {
-    return [];
-  }
-  
-  return (data as SecretRow[]).map(item => {
-    // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
-    let imgArray: string[] | null = null;
-    if (item.img === null || item.img === undefined) {
-      imgArray = null;
-    } else if (Array.isArray(item.img)) {
-      imgArray = item.img;
-    } else if (typeof item.img === 'string') {
-      // JSON 문자열인지 확인하고 파싱
-      try {
-        const parsed = JSON.parse(item.img);
-        imgArray = Array.isArray(parsed) ? parsed : [item.img];
-      } catch {
-        // JSON 파싱 실패 시 단일 문자열로 처리
-        imgArray = [item.img];
-      }
-    }
-    
-    return {
-      id: item.id,
-      title: item.title,
-      desc: item.desc,
-      price: item.price,
-      // 배열인 경우 첫 번째 요소만, null이면 null
-      img: imgArray && imgArray.length > 0 ? imgArray[0] : null,
-    };
-  });
+  return sorted.map(mapTravelproductToSecret).filter((secret): secret is Secret => secret !== null);
 }
 
+// Sale Secrets: 아직 판매되지 않은 상품 중 최근 8개
 export async function fetchSaleSecrets(): Promise<Secret[]> {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('id, title, desc, price, img, sale_ends, created_at')
-    .eq('category', 'sale')
-    .order('created_at', { ascending: false })
-    .limit(8);
+  const travelproducts = await fetchAllTravelproducts(false);
   
-  if (error) {
-    console.error('Error fetching sale secrets:', error);
-    return [];
-  }
+  // soldAt이 null이고 createdAt 기준으로 정렬하여 최근 8개 선택
+  const sorted = [...travelproducts]
+    .filter(tp => tp && tp._id && !tp.soldAt) // null 체크 추가 및 아직 판매되지 않은 것만
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 8);
   
-  if (!data || data.length === 0) {
-    return [];
-  }
-  
-  return (data as SecretRow[]).map(item => {
-    // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
-    let imgArray: string[] | null = null;
-    if (item.img === null || item.img === undefined) {
-      imgArray = null;
-    } else if (Array.isArray(item.img)) {
-      imgArray = item.img;
-    } else if (typeof item.img === 'string') {
-      // JSON 문자열인지 확인하고 파싱
-      try {
-        const parsed = JSON.parse(item.img);
-        imgArray = Array.isArray(parsed) ? parsed : [item.img];
-      } catch {
-        // JSON 파싱 실패 시 단일 문자열로 처리
-        imgArray = [item.img];
-      }
-    }
-    
-    return {
-      id: item.id,
-      title: item.title,
-      desc: item.desc,
-      price: item.price,
-      // 배열인 경우 첫 번째 요소만, null이면 null
-      img: imgArray && imgArray.length > 0 ? imgArray[0] : null,
-      saleEnds: item.sale_ends || undefined,
-    };
-  });
+  return sorted.map(mapTravelproductToSecret).filter((secret): secret is Secret => secret !== null);
 }
 
+// Recommended Secrets: 최근 12개 상품
 export async function fetchRecommendedSecrets(): Promise<Secret[]> {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('id, title, desc, price, img, created_at')
-    .eq('category', 'recommended')
-    .order('created_at', { ascending: false })
-    .limit(12);
+  const travelproducts = await fetchAllTravelproducts(false);
   
-  if (error) {
-    console.error('Error fetching recommended secrets:', error);
-    return [];
-  }
+  // createdAt 기준으로 정렬하여 최근 12개 선택
+  const sorted = [...travelproducts]
+    .filter(tp => tp && tp._id) // null 체크 추가
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 12);
   
-  if (!data || data.length === 0) {
-    return [];
-  }
-  
-  return (data as SecretRow[]).map(item => {
-    // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
-    let imgArray: string[] | null = null;
-    if (item.img === null || item.img === undefined) {
-      imgArray = null;
-    } else if (Array.isArray(item.img)) {
-      imgArray = item.img;
-    } else if (typeof item.img === 'string') {
-      // JSON 문자열인지 확인하고 파싱
-      try {
-        const parsed = JSON.parse(item.img);
-        imgArray = Array.isArray(parsed) ? parsed : [item.img];
-      } catch {
-        // JSON 파싱 실패 시 단일 문자열로 처리
-        imgArray = [item.img];
-      }
-    }
-    
-    return {
-      id: item.id,
-      title: item.title,
-      desc: item.desc,
-      price: item.price,
-      // 배열인 경우 첫 번째 요소만, null이면 null
-      img: imgArray && imgArray.length > 0 ? imgArray[0] : null,
-    };
-  });
+  return sorted.map(mapTravelproductToSecret).filter((secret): secret is Secret => secret !== null);
 }
 
-// 상세페이지용: ID로 secret 조회
+// 이미지 URL을 절대 URL로 변환하는 함수
+function getImageUrl(imagePath: string): string {
+  // 이미 절대 URL인 경우 그대로 반환
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // codecamp-file-storage 경로인 경우 Google Cloud Storage URL로 변환
+  if (imagePath.startsWith('codecamp-file-storage/')) {
+    return `https://storage.googleapis.com/${imagePath}`;
+  }
+  
+  // Supabase Storage URL인 경우 그대로 반환
+  if (imagePath.includes('supabase.co') || imagePath.includes('supabase')) {
+    return imagePath;
+  }
+  
+  // 상대 경로인 경우 GraphQL 서버의 기본 URL과 결합
+  const baseUrl = 'https://main-practice.codebootcamp.co.kr';
+  return `${baseUrl}/${imagePath}`;
+}
+
+// 상세페이지용: ID로 travelproduct 조회 (GraphQL 사용)
 export async function fetchSecretById(secretId: string) {
-  const { data, error } = await supabase
-    .from('secrets')
-    .select('*')
-    .eq('id', secretId)
-    .single();
-  
-  if (error) {
-    console.error('Error fetching secret by id:', error);
-    return null;
-  }
-  
-  if (!data) {
-    return null;
-  }
-  
-  // 타입 캐스팅 없이 직접 data에서 값 가져오기 (메인 페이지와 동일하게)
-  const rawData = data as any;
-  
-  // img 필드 파싱 (JSON 문자열인 경우 배열로 변환)
-  let imgArray: string[] = [];
-  if (rawData.img === null || rawData.img === undefined) {
-    imgArray = [];
-  } else if (Array.isArray(rawData.img)) {
-    imgArray = rawData.img;
-  } else if (typeof rawData.img === 'string') {
-    // JSON 문자열인지 확인하고 파싱
-    try {
-      const parsed = JSON.parse(rawData.img);
-      imgArray = Array.isArray(parsed) ? parsed : [rawData.img];
-    } catch {
-      // JSON 파싱 실패 시 단일 문자열로 처리
-      imgArray = [rawData.img];
+  try {
+    const { data } = await apolloClient.query({
+      query: FETCH_TRAVELPRODUCT,
+      variables: {
+        travelproductId: secretId,
+      },
+      fetchPolicy: 'network-only', // 항상 최신 데이터 가져오기
+    });
+
+    const travelproduct: Travelproduct = data?.fetchTravelproduct;
+
+    if (!travelproduct) {
+      return null;
     }
+
+    // GraphQL Travelproduct를 SecretDetailData 형식으로 변환
+    // 이미지 URL을 절대 URL로 변환
+    const imgArray = travelproduct.images && travelproduct.images.length > 0 
+      ? travelproduct.images.map(img => getImageUrl(img))
+      : null;
+
+    // 주소 정보는 travelproductAddress에서 가져오기
+    const address = travelproduct.travelproductAddress?.address || '';
+    const addressDetail = travelproduct.travelproductAddress?.addressDetail || '';
+    const zipcode = travelproduct.travelproductAddress?.zipcode || '';
+    const latitude = travelproduct.travelproductAddress?.lat?.toString() || '';
+    const longitude = travelproduct.travelproductAddress?.lng?.toString() || '';
+
+    return {
+      id: travelproduct._id,
+      title: travelproduct.name,
+      description: travelproduct.remarks,
+      img: imgArray,
+      tags: travelproduct.tags || [],
+      intro: travelproduct.contents,
+      price: travelproduct.price || 0,
+      address: address,
+      postalCode: zipcode,
+      addressDetail: addressDetail,
+      latitude: latitude,
+      longitude: longitude,
+    };
+  } catch (error) {
+    console.error('Error fetching travelproduct by id:', error);
+    return null;
   }
-  
-  const result = {
-    id: rawData.id,
-    title: rawData.title,
-    description: rawData.description || rawData.desc || '',
-    img: imgArray.length > 0 ? imgArray : null,
-    tags: rawData.tags || [],
-    intro: rawData.intro || '',
-    price: rawData.price,
-    address: rawData.address || '',
-    postalCode: rawData.postal_code || '',
-    addressDetail: rawData.address_detail || '',
-    latitude: rawData.latitude?.toString() || '',
-    longitude: rawData.longitude?.toString() || '',
-  };
-  
-  return result;
 }
 

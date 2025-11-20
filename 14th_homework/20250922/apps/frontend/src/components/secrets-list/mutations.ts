@@ -1,6 +1,8 @@
 import { gql } from "@apollo/client";
 import { supabase } from '@/lib/supabase-client';
+import { apolloClient } from '@/lib/apollo-client';
 import { SecretsFormData } from '@/components/secrets-form';
+import { FETCH_TRAVELPRODUCT } from './queries.graphql';
 
 export const LOGIN_USER = gql`
 	mutation loginUser($email: String!, $password: String!) {
@@ -24,6 +26,58 @@ export const CREATE_USER = gql`
 			updatedAt
 			deletedAt
 		}
+	}
+`;
+
+export const CREATE_TRAVELPRODUCT = gql`
+	mutation createTravelproduct($createTravelproductInput: CreateTravelproductInput!) {
+		createTravelproduct(createTravelproductInput: $createTravelproductInput) {
+			_id
+			name
+			remarks
+			contents
+			price
+			tags
+			images
+			travelproductAddress {
+				_id
+				address
+				addressDetail
+				zipcode
+				lat
+				lng
+			}
+			createdAt
+		}
+	}
+`;
+
+export const UPDATE_TRAVELPRODUCT = gql`
+	mutation updateTravelproduct($travelproductId: ID!, $updateTravelproductInput: UpdateTravelproductInput!) {
+		updateTravelproduct(travelproductId: $travelproductId, updateTravelproductInput: $updateTravelproductInput) {
+			_id
+			name
+			remarks
+			contents
+			price
+			tags
+			images
+			travelproductAddress {
+				_id
+				address
+				addressDetail
+				zipcode
+				lat
+				lng
+			}
+			updatedAt
+		}
+	}
+`;
+
+export const DELETE_TRAVELPRODUCT = gql`
+	mutation deleteTravelproduct($travelproductId: ID!) {
+		deleteTravelproduct(travelproductId: $travelproductId)
 	}
 `;
 
@@ -140,40 +194,68 @@ export async function createSecret(formData: SecretsFormData): Promise<{ success
 			? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
 			: null;
 
-		// 숫자 변환
-		const price = parseInt(formData.price, 10);
-		const latitude = formData.latitude ? parseFloat(formData.latitude) : null;
-		const longitude = formData.longitude ? parseFloat(formData.longitude) : null;
-
-		// Supabase에 데이터 삽입
-		const insertData = {
-			title: formData.title,
-			desc: formData.description, // 폼의 description을 desc로 매핑
-			description: null, // nullable이므로 null로 저장
-			intro: formData.intro,
-			price: price,
-			img: imageUrls.length > 0 ? imageUrls : null, // JSONB 배열로 저장
-			category: 'recommended', // 기본값 'recommended'
-			tags: tagsArray,
+		// 주소 정보 구성 (주소 관련 필드가 하나라도 있으면 객체 생성)
+		const travelproductAddress = (formData.address || formData.postalCode || formData.addressDetail || formData.latitude || formData.longitude) ? {
 			address: formData.address || null,
-			postal_code: formData.postalCode || null,
-			address_detail: formData.addressDetail || null,
-			latitude: latitude,
-			longitude: longitude,
-		};
-		
-		const { data, error } = await supabase
-			.from('secrets')
-			.insert(insertData)
-			.select()
-			.single();
+			addressDetail: formData.addressDetail || null,
+			zipcode: formData.postalCode || null,
+			lat: formData.latitude ? parseFloat(formData.latitude) : null,
+			lng: formData.longitude ? parseFloat(formData.longitude) : null,
+		} : null;
 
-		if (error) {
-			console.error('비밀 등록 실패:', error);
-			return { success: false, error: error.message };
+		// GraphQL mutation 실행
+		const { data, errors } = await apolloClient.mutate({
+			mutation: CREATE_TRAVELPRODUCT,
+			variables: {
+				createTravelproductInput: {
+					name: formData.title,
+					remarks: formData.description,
+					contents: formData.intro,
+					price: parseInt(formData.price, 10),
+					tags: tagsArray,
+					images: imageUrls.length > 0 ? imageUrls : null,
+					travelproductAddress: travelproductAddress,
+				},
+			},
+			// Apollo Client 캐시에 새 상품 추가
+			update: (cache, { data: mutationData }) => {
+				if (!mutationData?.createTravelproduct) return;
+
+				const newTravelproduct = mutationData.createTravelproduct;
+
+				// fetchTravelproducts 쿼리의 모든 변형(variants)에 새 상품 추가
+				cache.modify({
+					fields: {
+						fetchTravelproducts(existingTravelproducts = [], { readField, toReference }) {
+							// 새 상품이 이미 목록에 있는지 확인
+							const exists = existingTravelproducts.some(
+								(ref: any) => readField('_id', ref) === newTravelproduct._id
+							);
+
+							if (exists) {
+								return existingTravelproducts;
+							}
+
+							// 새 상품을 캐시에 추가하고 목록의 맨 앞에 추가
+							const newRef = toReference(newTravelproduct);
+							return [newRef, ...existingTravelproducts];
+						},
+					},
+				});
+			},
+		});
+
+		// GraphQL errors 체크
+		if (errors && errors.length > 0) {
+			console.error('비밀 등록 실패:', errors);
+			return { success: false, error: errors[0].message || '비밀 등록에 실패했습니다.' };
 		}
 
-		return { success: true, id: data.id };
+		if (!data?.createTravelproduct?._id) {
+			return { success: false, error: '비밀 등록 후 ID를 받아오지 못했습니다.' };
+		}
+
+		return { success: true, id: data.createTravelproduct._id };
 	} catch (error) {
 		console.error('비밀 등록 중 오류 발생:', error);
 		return { success: false, error: '비밀 등록 중 오류가 발생했습니다.' };
@@ -187,25 +269,36 @@ export async function updateSecret(
 	existingImageUrl?: string | null | string[] // 기존 이미지 URL 배열 전달받기
 ): Promise<{ success: boolean; id?: string; error?: string }> {
 	try {
-		// 1. 기존 데이터 조회 (수정하지 않은 필드 유지하기 위해)
-		const { data: existingData, error: fetchError } = await supabase
-			.from('secrets')
-			.select('*')
-			.eq('id', secretId)
-			.single();
-		
-		if (fetchError || !existingData) {
+		// 1. 기존 데이터 조회 (GraphQL 사용)
+		let existingTravelproduct;
+		try {
+			const { data } = await apolloClient.query({
+				query: FETCH_TRAVELPRODUCT,
+				variables: {
+					travelproductId: secretId,
+				},
+				fetchPolicy: 'network-only',
+			});
+			existingTravelproduct = data?.fetchTravelproduct;
+		} catch (error) {
+			console.error('기존 데이터 조회 실패:', error);
+			return { success: false, error: '비밀을 찾을 수 없습니다.' };
+		}
+
+		if (!existingTravelproduct) {
 			return { success: false, error: '비밀을 찾을 수 없습니다.' };
 		}
 
 		// 2. 이미지 처리
 		// 기존 이미지 배열 처리 (호환성 유지)
-		// existingImageUrl 파싱
-		let existingImages: string[] = [];
-		if (existingImageUrl === null || existingImageUrl === undefined) {
-			existingImages = [];
+		// existingImageUrl 파싱 - undefined로 초기화하여 명시적 전달 여부 확인
+		let existingImages: string[] | undefined = undefined;
+		if (existingImageUrl === null) {
+			existingImages = []; // null은 명시적으로 빈 배열로 처리
+		} else if (existingImageUrl === undefined) {
+			existingImages = undefined; // undefined는 전달되지 않음을 의미
 		} else if (Array.isArray(existingImageUrl)) {
-			existingImages = existingImageUrl;
+			existingImages = existingImageUrl; // 배열이 전달됨 (빈 배열 포함)
 		} else if (typeof existingImageUrl === 'string') {
 			try {
 				const parsed = JSON.parse(existingImageUrl);
@@ -215,23 +308,13 @@ export async function updateSecret(
 			}
 		}
 		
-		// 데이터베이스에서 가져온 기존 이미지도 확인 및 파싱
-		let dbImages: string[] = [];
-		if (existingData.img === null || existingData.img === undefined) {
-			dbImages = [];
-		} else if (Array.isArray(existingData.img)) {
-			dbImages = existingData.img;
-		} else if (typeof existingData.img === 'string') {
-			try {
-				const parsed = JSON.parse(existingData.img);
-				dbImages = Array.isArray(parsed) ? parsed : [existingData.img];
-			} catch {
-				dbImages = [existingData.img];
-			}
-		}
+		// GraphQL에서 가져온 기존 이미지도 확인
+		const dbImages = existingTravelproduct.images && existingTravelproduct.images.length > 0
+			? existingTravelproduct.images
+			: [];
 		
-		// existingImageUrl이 없으면 DB에서 가져온 값 사용
-		const currentImages = existingImages.length > 0 ? existingImages : dbImages;
+		// existingImageUrl이 명시적으로 전달되었으면 그 값 사용, undefined이면 GraphQL에서 가져온 값 사용
+		const currentImages = existingImages !== undefined ? existingImages : dbImages;
 		
 		let imageUrls: string[] | null | undefined = undefined; // undefined = 변경 없음
 		
@@ -278,55 +361,69 @@ export async function updateSecret(
 		} else if (formData.image === null) {
 			// 이미지가 명시적으로 제거된 경우 (사용자가 이미지 제거 버튼 클릭)
 			imageUrls = null; // 이미지 제거
+		} else if (existingImages !== undefined) {
+			// existingImageUrl이 명시적으로 전달되었고, 새 이미지가 없는 경우
+			// 업데이트된 existingImages를 사용 (기존 이미지 삭제 반영)
+			imageUrls = existingImages.length > 0 ? existingImages : null;
 		}
-		// formData.image가 undefined이거나 빈 FileList이고 기존 이미지가 있으면 imageUrls은 undefined (변경 없음)
+		// formData.image가 undefined이고 existingImageUrl도 undefined이면 imageUrls은 undefined (변경 없음)
 
 		// 3. 데이터 변환 및 업데이트 객체 생성
-		// 중요: 사용자가 수정한 필드만 업데이트하고, 수정하지 않은 필드는 기존 값 유지
-		const updateData: any = {};
+		// GraphQL UpdateTravelproductInput 형식으로 변환
+		const updateInput: any = {};
 		
 		// 필수 필드들은 항상 업데이트 (폼에서 필수 입력이므로)
-		updateData.title = formData.title;
-		updateData.desc = formData.description;
-		updateData.intro = formData.intro;
-		updateData.price = parseInt(formData.price, 10);
+		updateInput.name = formData.title;
+		updateInput.remarks = formData.description;
+		updateInput.contents = formData.intro;
+		updateInput.price = parseInt(formData.price, 10);
 		
 		// 태그 변환
 		const tagsArray = formData.tags
 			? formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
 			: null;
-		updateData.tags = tagsArray;
-		
-		// 주소 관련 필드 (빈 문자열이면 null로, 값이 있으면 업데이트)
-		updateData.address = formData.address || null;
-		updateData.postal_code = formData.postalCode || null;
-		updateData.address_detail = formData.addressDetail || null;
-		
-		// 위도/경도 변환
-		updateData.latitude = formData.latitude ? parseFloat(formData.latitude) : null;
-		updateData.longitude = formData.longitude ? parseFloat(formData.longitude) : null;
+		updateInput.tags = tagsArray;
 
 		// 이미지 처리: 새 이미지가 있으면 업데이트, 제거되었으면 null, 없으면 undefined (변경 없음)
 		if (imageUrls !== undefined) {
-			updateData.img = imageUrls;
+			updateInput.images = imageUrls.length > 0 ? imageUrls : null;
 		}
-		// imageUrls이 undefined이면 updateData에 포함하지 않음 (기존 이미지 유지)
+		// imageUrls이 undefined이면 updateInput에 포함하지 않음 (기존 이미지 유지)
 
-		// 4. Supabase 업데이트
-		// 현재는 권한 체크 없이 모든 사용자가 수정 가능
-		const { data, error } = await supabase
-			.from('secrets')
-			.update(updateData)
-			.eq('id', secretId)
-			.select()
-			.single();
+		// 주소 정보 구성
+		// 주소 필드가 하나라도 있으면 업데이트, 모두 비어있으면 기존 주소 유지 (undefined로 설정하지 않음)
+		const hasAddressData = formData.address || formData.postalCode || formData.addressDetail || formData.latitude || formData.longitude;
+		if (hasAddressData) {
+			const travelproductAddress = {
+				address: formData.address || null,
+				addressDetail: formData.addressDetail || null,
+				zipcode: formData.postalCode || null,
+				lat: formData.latitude ? parseFloat(formData.latitude) : null,
+				lng: formData.longitude ? parseFloat(formData.longitude) : null,
+			};
+			updateInput.travelproductAddress = travelproductAddress;
+		}
+		// 주소 필드가 모두 비어있으면 updateInput.travelproductAddress를 설정하지 않음 (기존 주소 유지)
+
+		// 4. GraphQL mutation 실행
+		const { data, error } = await apolloClient.mutate({
+			mutation: UPDATE_TRAVELPRODUCT,
+			variables: {
+				travelproductId: secretId,
+				updateTravelproductInput: updateInput,
+			},
+		});
 
 		if (error) {
 			console.error('비밀 수정 실패:', error);
-			return { success: false, error: error.message };
+			return { success: false, error: error.message || '비밀 수정에 실패했습니다.' };
 		}
 
-		return { success: true, id: data.id };
+		if (!data?.updateTravelproduct?._id) {
+			return { success: false, error: '비밀 수정 후 ID를 받아오지 못했습니다.' };
+		}
+
+		return { success: true, id: data.updateTravelproduct._id };
 	} catch (error) {
 		console.error('비밀 수정 중 오류 발생:', error);
 		return { success: false, error: '비밀 수정 중 오류가 발생했습니다.' };
@@ -345,62 +442,114 @@ export async function deleteSecret(
 			return { success: false, error: '삭제할 비밀의 ID가 없습니다.' };
 		}
 
-		// 삭제 전에 해당 레코드가 존재하는지 확인
-		const { data: existingData, error: fetchError } = await supabase
-			.from('secrets')
-			.select('id')
-			.eq('id', secretId)
-			.single();
+		// GraphQL mutation 실행
+		const { data, errors } = await apolloClient.mutate({
+			mutation: DELETE_TRAVELPRODUCT,
+			variables: {
+				travelproductId: secretId,
+			},
+			errorPolicy: 'all', // 캐시 업데이트 에러가 있어도 mutation 결과를 받기
+			// Apollo Client 캐시에서 삭제된 항목 제거
+			update: (cache, { data: mutationData, errors: mutationErrors }) => {
+				// mutation이 실패했거나 응답이 없으면 캐시 업데이트를 건너뜀
+				if (mutationErrors && mutationErrors.length > 0) {
+					console.warn('mutation 에러로 인해 캐시 업데이트를 건너뜁니다:', mutationErrors);
+					return;
+				}
+				
+				if (!mutationData?.deleteTravelproduct) {
+					console.warn('삭제 mutation 응답이 없습니다.');
+					return;
+				}
 
-		console.log('삭제 전 레코드 확인:', { existingData, fetchError });
+				try {
 
-		if (fetchError || !existingData) {
-			console.error('삭제할 레코드를 찾을 수 없습니다:', fetchError);
-			return { success: false, error: '삭제할 비밀을 찾을 수 없습니다.' };
+					// 1. 상세 페이지 쿼리 캐시 제거
+					try {
+						cache.evict({
+							id: `Travelproduct:${secretId}`,
+						});
+					} catch (evictError) {
+						console.warn('캐시 evict 실패 (무시됨):', evictError);
+					}
+
+					// 2. 목록 쿼리 캐시에서 삭제된 항목 제거
+					try {
+						cache.modify({
+							fields: {
+								fetchTravelproducts(existingTravelproducts = [], { readField }) {
+									// 배열이 아닌 경우 그대로 반환
+									if (!Array.isArray(existingTravelproducts)) {
+										return existingTravelproducts;
+									}
+									
+									// 안전하게 필터링
+									return existingTravelproducts.filter(
+										(travelproductRef: any) => {
+											// null 체크
+											if (!travelproductRef) {
+												return false;
+											}
+											
+											try {
+												// readField가 null을 반환할 수 있으므로 안전하게 처리
+												const id = readField('_id', travelproductRef);
+												if (id === null || id === undefined) {
+													return false;
+												}
+												
+												return id !== secretId;
+											} catch (readError) {
+												// readField 에러 발생 시 해당 항목 제거
+												console.warn('readField 에러 (항목 제거):', readError);
+												return false;
+											}
+										}
+									);
+								},
+							},
+						});
+					} catch (modifyError) {
+						console.warn('캐시 modify 실패 (무시됨):', modifyError);
+					}
+
+					// 3. 가비지 컬렉션 실행
+					try {
+						cache.gc();
+					} catch (gcError) {
+						console.warn('캐시 GC 실패 (무시됨):', gcError);
+					}
+				} catch (error) {
+					console.error('캐시 업데이트 중 예외 발생:', error);
+					// 캐시 업데이트 실패해도 삭제는 성공할 수 있으므로 에러를 던지지 않음
+				}
+			},
+		});
+
+		// GraphQL errors 체크
+		if (errors && errors.length > 0) {
+			console.error('비밀 삭제 실패:', errors);
+			// 에러 상세 정보 로깅
+			errors.forEach((error, index) => {
+				console.error(`에러 ${index + 1}:`, {
+					message: error.message,
+					extensions: error.extensions,
+				});
+			});
+			return { success: false, error: errors[0].message || '비밀 삭제에 실패했습니다.' };
 		}
 
-		// 현재는 권한 체크 없이 모든 사용자가 삭제 가능
-		console.log('Supabase 삭제 요청 시작...');
-		const { data, error } = await supabase
-			.from('secrets')
-			.delete()
-			.eq('id', secretId);
-
-		console.log('Supabase 삭제 응답:', { data, error });
-
-		if (error) {
-			console.error('비밀 삭제 실패:', error);
-			console.error('에러 상세:', JSON.stringify(error, null, 2));
-			console.error('에러 코드:', error.code);
-			console.error('에러 메시지:', error.message);
-			console.error('에러 힌트:', error.hint);
-			return { success: false, error: error.message || '비밀 삭제에 실패했습니다.' };
-		}
-
-		// 삭제 후 확인 (RLS 정책 때문에 select가 안 될 수 있으므로 삭제 후 재확인)
-		const { data: verifyData, error: verifyError } = await supabase
-			.from('secrets')
-			.select('id')
-			.eq('id', secretId)
-			.single();
-
-		console.log('삭제 후 확인:', { verifyData, verifyError });
-
-		// verifyError가 있고 "PGRST116" (not found)이면 삭제 성공
-		if (verifyError && verifyError.code === 'PGRST116') {
-			console.log('비밀 삭제 성공 (레코드가 존재하지 않음)');
+		// GraphQL deleteTravelproduct는 ID를 반환하므로, 반환값이 있으면 성공
+		// null이나 undefined가 아닌 경우 성공으로 처리
+		const deletedId = data?.deleteTravelproduct;
+		if (deletedId) {
+			console.log('비밀 삭제 성공, 삭제된 ID:', deletedId);
 			return { success: true };
 		}
 
-		// verifyData가 null이거나 undefined면 삭제 성공
-		if (!verifyData) {
-			console.log('비밀 삭제 성공 (레코드가 존재하지 않음)');
-			return { success: true };
-		}
-
-		// 여기까지 왔다면 삭제가 안 된 것
-		console.warn('삭제 후에도 레코드가 존재함:', verifyData);
-		return { success: false, error: '삭제가 완료되지 않았습니다. RLS 정책을 확인해주세요.' };
+		// 응답이 null이거나 undefined인 경우
+		console.warn('삭제 응답이 null입니다:', data);
+		return { success: false, error: '삭제가 완료되지 않았습니다.' };
 	} catch (error) {
 		console.error('비밀 삭제 중 오류 발생:', error);
 		const errorMessage = error instanceof Error ? error.message : '비밀 삭제 중 오류가 발생했습니다.';

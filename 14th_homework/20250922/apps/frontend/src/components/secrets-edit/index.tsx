@@ -14,9 +14,10 @@ interface SecretsEditProps {
 export default function SecretsEdit({ secretId, initialData, existingImageUrl }: SecretsEditProps) {
 	const router = useRouter();
 
-	const handleSubmit = async (data: SecretsFormData) => {
-		// existingImageUrl을 전달하여 기존 이미지 유지 처리
-		const result = await updateSecret(secretId, data, existingImageUrl);
+	const handleSubmit = async (data: SecretsFormData, updatedExistingImageUrls?: string[]) => {
+		// 업데이트된 existingImageUrls가 있으면 사용, 없으면 초기값 사용
+		const imageUrlsToUse = updatedExistingImageUrls !== undefined ? updatedExistingImageUrls : existingImageUrl;
+		const result = await updateSecret(secretId, data, imageUrlsToUse);
 		
 		if (result.success) {
 			// 수정 성공 후 상세 페이지로 이동 (캐시 무효화를 위해 window.location 사용)
